@@ -52,36 +52,25 @@ if __name__ == "__main__":
   from sbp.navigation import SBP_MSG_POS_LLH
 
   FIX_MODES = ['Invalid','SPP','DGNSS','Float RTK','Fixed RTK','Dead Reckoning','SBAS']
-  with drivers.driver_from_config(config) as driver:
-        with formats.format_from_config(config, driver) as source:
-            try:
-                for msg, metadata in source.filter(SBP_MSG_POS_LLH):
-                    state = {
-                      'n_sats': msg.n_sats,
-                      'h_accuracy': msg.h_accuracy,
-                      'v_accuracy': msg.v_accuracy,
-                      'flags': msg.flags,
-                      'fix_mode': msg.flags & 7,
-                      'fix_mode_str': FIX_MODES[msg.flags & 7],
-                    }
-                    client.send_state(
-                      state,
-                      lat=msg.lat,
-                      lon=msg.lon,
-                    )
-            except KeyboardInterrupt:
-                pass
-
-  state = {"i": 0}
-  LAT0 = 37.7911485304507
-  LON0 = -122.3956400156021
-  RADIUS = 0.01
-  RAD_PER_STEP = 6/360.0
-  while False:
-      client.send_state(
-        state,
-        lat=LAT0 + RADIUS*math.cos(state["i"]*RAD_PER_STEP),
-        lon=LON0 + RADIUS*math.sin(state["i"]*RAD_PER_STEP),
-      )
-      state["i"] += 1
-      time.sleep(1)
+  try:
+    with drivers.driver_from_config(config) as driver:
+          with formats.format_from_config(config, driver) as source:
+              try:
+                  for msg, metadata in source.filter(SBP_MSG_POS_LLH):
+                      state = {
+                        'n_sats': msg.n_sats,
+                        'h_accuracy': msg.h_accuracy,
+                        'v_accuracy': msg.v_accuracy,
+                        'flags': msg.flags,
+                        'fix_mode': msg.flags & 7,
+                        'fix_mode_str': FIX_MODES[msg.flags & 7],
+                      }
+                      client.send_state(
+                        state,
+                        lat=msg.lat,
+                        lon=msg.lon,
+                      )
+              except KeyboardInterrupt:
+                  pass
+  except confuse.exceptions.ConfigError as err:
+    sys.exit(f'Error: {err}')
