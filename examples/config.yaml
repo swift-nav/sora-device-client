@@ -1,0 +1,17 @@
+device-id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+source: tcp
+format: sbp
+sources:
+  tcp:
+    host: 192.168.0.222
+    port: 55555
+  serial:
+    port: /dev/ttyUSB0
+    baud: 115200
+
+
+# Overide the Kea server configuration
+#host: api.staging.kea.swiftnav.com
+#host: api.dev.kea.swiftnav.com
+host: localhost
+#port: 10000

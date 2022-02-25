@@ -1,0 +1,37 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "Swift Developers", email = "developers@swift-nav.com"},
+]
+dependencies = [
+    "grpcio==1.43.0",
+    "gtfs-realtime-bindings==0.0.7",
+    "requests==2.27.1",
+    "sbp>=4.1.3",
+    "confuse>=1.7.0",
+]
+requires-python = ">=3.8"
+license = {text = "CUSTOM"}
+
+[project.urls]
+homepage = ""
+
+[tool]
+[tool.pdm]
+[[tool.pdm.source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
+
+[tool.pyright]
+include = ["__pypackages__", "grpc"]
+exclude = ["**/__pycache__"]
+reportMissingImports = true
+reportMissingTypeStubs = false
+pythonVersion = "3.8"

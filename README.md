@@ -1,2 +1,98 @@
-# kea-device-client
-Kea Client Library and Utilities for Devices
+Kea Device Client
+=================
+
+The Kea Device Client provides a set of simple tools to connect your device to
+Kea.
+
+The Kea Device Client consists of:
+
+ - A command-line client - the simplest way to connect to Kea
+ - A Python client library - for deeper integration and customization
+
+# Installing
+
+## Dependencies
+We manage dependencies with PDM: https://pdm.fming.dev/usage/dependency/
+
+They are recorded in `pyproject.toml`. Note that there are dev and prod
+dependencies.
+
+You will need to install the pdm cli to use it
+```bash
+brew install pdm
+```
+You will need to choose a path to a version of python to use, but pdm can do
+this when you download the dependencies.
+```bash
+pdm sync
+```
+
+The Kea API uses a gRPC interface and the API libraries are built by
+[buf.build](https://buf.build/).
+
+This requires the `buf` tool. Full installation instructions and options are
+[here](https://docs.buf.build/installation), or simply
+```bash
+brew install bufbuild/buf/buf
+```
+
+## Building the API libraries
+```bash
+make grpc
+```
+
+# Command-Line Client 
+
+## Configuration
+
+The command-line client can be configured via:
+ - Configuration file
+ - Environment variables
+ - Command-line arguments
+
+### Configuration file
+
+Documentation is available in the [Example configuration file](examples/config.yaml).
+
+The path to the configuration file can be passed as a command-line argument.
+
+Here are the default search paths for each platform:
+
+ - Mac OS: `~/.config/keaclient` and `~/Library/Application Support/keaclient`
+ - Other Unix: `~/.config/keaclient` and `/etc/keaclient`
+ - Windows: `%APPDATA%\keaclient` where the `APPDATA` environment variable falls back to `%HOME%\AppData\Roaming` if undefined
+
+Default values are specified [here](keaclient/config_default.yaml).
+
+### Environment variables
+
+Any parameter from the configruation file can also be specified as an
+environment variable. The environment variable name takes the format
+`KEACLIENT_PARAMETER` where the parameter name is converted to upper-case. Where
+nested parameters are used, they can be joined with a double underscore.
+
+Examples:
+
+```bash
+export KEACLIENT_PORT=1234
+export KEACLIENT_SOURCES__TCP__HOST=192.168.0.123
+```
+
+Where the same parameter is set, environment variables take precedence over
+config files.
+
+### Command-line argument
+
+For documentation on the available command-line arguments, run
+```bash
+pdm -v run python -m keaclient.daemon --help
+```
+
+Command line arguments have the highest precedence and will override
+configuration from environment variables or config files.
+
+## Running the daemon
+
+```bash
+pdm -v run python -m keaclient.daemon [ARGS]
+```
