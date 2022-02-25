@@ -1,17 +1,61 @@
+# ==============================================================================
+# Kea Device Client configuration
+# ==============================================================================
+
+# ==============================================================================
+# Device Configuration
+
+# The Device ID is a unique UUID for the device within Kea
+# It is a required configuration item
 device-id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
-source: tcp
-format: sbp
-sources:
+
+# ==============================================================================
+# Location Input Configuration
+
+# The source describes how the client should obtain location information.
+# Exactly one source should be specified.
+# The options are: tcp, serial
+source:
+  # TCP socket source
   tcp:
     host: 192.168.0.222
     port: 55555
-  serial:
-    port: /dev/ttyUSB0
-    baud: 115200
+  # Serial port source
+  #serial:
+  #  port: /dev/ttyUSB0
+  #  baud: 115200
 
+# The format describes how the location data should be decoded.
+# It is a required configuration item
+# The options are: sbp, nmea
+format: sbp
+#format: nmea
 
-# Overide the Kea server configuration
+# ------------------------------------------------------------------------------
+# Recipes:
+
+# Typical GPS receiver connected over USB Serial
+#source:
+#  serial:
+#    port: /dev/ttyUSB0
+#    baud: 115200
+#format: nmea
+
+# Piksi Multi / Duro / Starling connected over TCP
+#source:
+#  tcp:
+#    host: 192.168.0.222
+#    port: 55555
+#format: sbp
+
+# ==============================================================================
+# Advanced Options
+#
+# (you shouldn't need to set these unless you have a specific reason to override
+# the default values)
+
+# Kea server configuration
 #host: api.staging.kea.swiftnav.com
 #host: api.dev.kea.swiftnav.com
-host: localhost
+#host: localhost
 #port: 10000
