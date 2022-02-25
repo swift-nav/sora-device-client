@@ -1,4 +1,5 @@
 from . import keaclient
+from . import drivers
 import time
 import logging
 import argparse
@@ -39,17 +40,14 @@ if __name__ == "__main__":
     host=config['host'].get(),
     port=config['port'].as_number()
   )
+
   client.start()
 
-  from sbp.client.drivers.network_drivers import TCPDriver
   from sbp.client import Handler, Framer
   from sbp.navigation import SBP_MSG_POS_LLH
 
-  tcp_host = config['sources']['tcp']['host'].get()
-  tcp_port = config['sources']['tcp']['port'].get()
-  logger.info(f"Using TCP source {tcp_host}:{tcp_port}")
   FIX_MODES = ['Invalid','SPP','DGNSS','Float RTK','Fixed RTK','Dead Reckoning','SBAS']
-  with TCPDriver(tcp_host, tcp_port) as driver:
+  with drivers.driver_from_config(config) as driver:
         with Handler(Framer(driver.read, None, verbose=True)) as source:
             try:
                 for msg, metadata in source.filter(SBP_MSG_POS_LLH):
