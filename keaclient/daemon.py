@@ -1,5 +1,6 @@
 from . import keaclient
 from . import drivers
+from . import formats
 import time
 import logging
 import argparse
@@ -43,12 +44,11 @@ if __name__ == "__main__":
 
   client.start()
 
-  from sbp.client import Handler, Framer
   from sbp.navigation import SBP_MSG_POS_LLH
 
   FIX_MODES = ['Invalid','SPP','DGNSS','Float RTK','Fixed RTK','Dead Reckoning','SBAS']
   with drivers.driver_from_config(config) as driver:
-        with Handler(Framer(driver.read, None, verbose=True)) as source:
+        with formats.format_from_config(config, driver) as source:
             try:
                 for msg, metadata in source.filter(SBP_MSG_POS_LLH):
                     state = {
