@@ -29,12 +29,17 @@ if __name__ == "__main__":
     try:
       config.set_file(args.config)
     except confuse.exceptions.ConfigReadError:
-      sys.exit(f"Configuration file not found: {args.config}")
+      sys.exit(f"Error: Configuration file not found: {args.config}")
   config.set_env()
   config.set_args(args)
 
   config['host'].add(keaclient.DEFAULT_HOST)
   config['port'].add(keaclient.DEFAULT_PORT)
+
+  try:
+    device_id = config['device-id'].get()
+  except confuse.exceptions.NotFoundError:
+    sys.exit("Error: Device ID must be specified")
 
   client = keaclient.KeaClient(
     device_id=config['device-id'].get(),
