@@ -1,21 +1,20 @@
 import logging
 import confuse
 
-from sbp.client.drivers.network_drivers import TCPDriver
-from sbp.client.drivers.pyserial_driver import PySerialDriver
-  
 logger = logging.getLogger("KeaClient")
 
 def tcp_driver_from_config(config):
   tcp_host = config['host'].get()
   tcp_port = config['port'].as_number()
   logger.info(f"Using TCP driver: {tcp_host}:{tcp_port}")
+  from sbp.client.drivers.network_drivers import TCPDriver
   return TCPDriver(tcp_host, tcp_port)
 
 def serial_driver_from_config(config):
   port = config['port'].get()
   baud = config['baud'].as_number()
   logger.info(f"Using Serial driver: {port} @ {baud}")
+  from sbp.client.drivers.pyserial_driver import PySerialDriver
   return PySerialDriver(port, baud)
 
 DRIVERS = {
