@@ -48,7 +48,7 @@ if __name__ == "__main__":
   tcp_host = config['sources']['tcp']['host'].get()
   tcp_port = config['sources']['tcp']['port'].get()
   logger.info(f"Using TCP source {tcp_host}:{tcp_port}")
-  FIX_MODES = ['Invalid','SPP','DGNSS','Float RTK','Fixed RTK','Dead Reckoning','SBAS Position']
+  FIX_MODES = ['Invalid','SPP','DGNSS','Float RTK','Fixed RTK','Dead Reckoning','SBAS']
   with TCPDriver(tcp_host, tcp_port) as driver:
         with Handler(Framer(driver.read, None, verbose=True)) as source:
             try:
@@ -58,8 +58,8 @@ if __name__ == "__main__":
                       'h_accuracy': msg.h_accuracy,
                       'v_accuracy': msg.v_accuracy,
                       'flags': msg.flags,
-                      'fix_mode': msg.flags & 3,
-                      'fix_mode_str': FIX_MODES[msg.flags & 3],
+                      'fix_mode': msg.flags & 7,
+                      'fix_mode_str': FIX_MODES[msg.flags & 7],
                     }
                     client.send_state(
                       state,
