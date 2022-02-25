@@ -1,4 +1,4 @@
-from . import keaclient
+from . import client
 from . import drivers
 from . import formats
 import time
@@ -21,10 +21,10 @@ if __name__ == "__main__":
   parser.add_argument("-p", "--port", help="Kea server port")
   args = parser.parse_args()
 
-  keaclient.show_log_output(verbose=args.verbose, debug=args.debug)
+  client.show_log_output(verbose=args.verbose, debug=args.debug)
   logger = logging.getLogger("KeaClient")
 
-  config = confuse.Configuration('keaclient', keaclient.__name__)
+  config = confuse.Configuration('keaclient', client.__name__)
   if args.config:
     try:
       config.set_file(args.config)
@@ -33,15 +33,15 @@ if __name__ == "__main__":
   config.set_env()
   config.set_args(args)
 
-  config['host'].add(keaclient.DEFAULT_HOST)
-  config['port'].add(keaclient.DEFAULT_PORT)
+  config['host'].add(client.DEFAULT_HOST)
+  config['port'].add(client.DEFAULT_PORT)
 
   try:
     device_id = config['device-id'].get()
   except confuse.exceptions.NotFoundError:
     sys.exit("Error: Device ID must be specified")
 
-  client = keaclient.KeaClient(
+  client = client.KeaClient(
     device_id=config['device-id'].get(),
     host=config['host'].get(),
     port=config['port'].as_number()
