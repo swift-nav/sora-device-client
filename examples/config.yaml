@@ -26,10 +26,16 @@ driver:
   #  baud: 115200
 
 # The format describes how the location data should be decoded.
-# It is a required configuration item
+# Exactly one driver should be specified.
 # The options are: sbp, nmea
-format: sbp
-#format: nmea
+format:
+  # Swift Binary Protocol (SBP) format
+  sbp:
+    # Include orientation information? Only enable if the device is capable of
+    # outputting MSG_ORIENT_EULER
+    orientation: false
+  # NMEA format (no configuration options)
+  #nmea:
 
 # ------------------------------------------------------------------------------
 # Recipes:
@@ -39,14 +45,26 @@ format: sbp
 #  serial:
 #    port: /dev/ttyUSB0
 #    baud: 115200
-#format: nmea
+#format:
+#  nmea:
 
 # Piksi Multi / Duro / Starling connected over TCP
 #driver:
 #  tcp:
 #    host: 192.168.0.222
 #    port: 55555
-#format: sbp
+#format:
+#  sbp:
+#    orientation: false
+
+# Duro Inertial connected over TCP (with orientation)
+#driver:
+#  tcp:
+#    host: 192.168.0.222
+#    port: 55555
+#format:
+#  sbp:
+#    orientation: true
 
 # ==============================================================================
 # Advanced Options
