@@ -51,24 +51,15 @@ if __name__ == "__main__":
 
   from sbp.navigation import SBP_MSG_POS_LLH
 
-  FIX_MODES = ['Invalid','SPP','DGNSS','Float RTK','Fixed RTK','Dead Reckoning','SBAS']
   try:
     with drivers.driver_from_config(config) as driver:
           with formats.format_from_config(config, driver) as source:
               try:
-                  for msg, metadata in source.filter(SBP_MSG_POS_LLH):
-                      state = {
-                        'n_sats': msg.n_sats,
-                        'h_accuracy': msg.h_accuracy,
-                        'v_accuracy': msg.v_accuracy,
-                        'flags': msg.flags,
-                        'fix_mode': msg.flags & 7,
-                        'fix_mode_str': FIX_MODES[msg.flags & 7],
-                      }
+                  for loc in source:
                       client.send_state(
-                        state,
-                        lat=msg.lat,
-                        lon=msg.lon,
+                        loc.status,
+                        lat=loc.position.lat,
+                        lon=loc.position.lon,
                       )
               except KeyboardInterrupt:
                   pass

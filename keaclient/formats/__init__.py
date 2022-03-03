@@ -4,8 +4,8 @@ import confuse
 logger = logging.getLogger("KeaClient")
 
 def sbp_format_from_config(config, driver):
-  from sbp.client import Handler, Framer
-  return Handler(Framer(driver.read, None, verbose=True))
+  from .sbp import SBPFormat
+  return SBPFormat(driver)
 
 FORMATS = {
   "sbp": sbp_format_from_config,
