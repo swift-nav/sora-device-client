@@ -37,6 +37,9 @@ format:
   # NMEA format (no configuration options)
   #nmea:
 
+# Decimate the location inputs by a constant factor
+#decimate: 10
+
 # ------------------------------------------------------------------------------
 # Recipes:
 

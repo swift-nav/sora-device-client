@@ -51,11 +51,14 @@ if __name__ == "__main__":
 
   from sbp.navigation import SBP_MSG_POS_LLH
 
+  decimate = config['decimate'].as_number()
+
   try:
     with drivers.driver_from_config(config) as driver:
           with formats.format_from_config(config, driver) as source:
               try:
-                  for loc in source:
+                  for i, loc in enumerate(source):
+                    if i % decimate == 0:
                       client.send_state(
                         loc.status,
                         lat=loc.position.lat,
