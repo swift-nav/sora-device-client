@@ -1,1 +1,2 @@
 # Default configuration
+disable_tls: false

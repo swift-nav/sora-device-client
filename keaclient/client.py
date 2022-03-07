@@ -12,8 +12,8 @@ import kea.device.v1.device_pb2 as device_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.struct_pb2 import Struct
 
-DEFAULT_HOST = "api.staging.kea.swiftnav.com"
-DEFAULT_PORT = 10000
+DEFAULT_HOST = "grpc.staging.kea.swiftnav.com"
+DEFAULT_PORT = 443
 
 logger = logging.getLogger("KeaClient")
 
@@ -31,12 +31,13 @@ def signal_handler(signal, frame):
     raise ExitMain()
 
 class KeaClient:
-    def __init__(self, device_id=None, host=DEFAULT_HOST, port=DEFAULT_PORT, state_queue_depth=0, event_queue_depth=0):
+    def __init__(self, device_id=None, host=DEFAULT_HOST, port=DEFAULT_PORT, disable_tls=False, state_queue_depth=0, event_queue_depth=0):
         self._device_id = device_id
         if self._device_id:
             logger.info("Device ID: %s", self._device_id)
         self._host = host
         self._port = port
+        self._disable_tls = disable_tls
         self._state_queue = queue.Queue(maxsize=state_queue_depth)
         self._event_queue = queue.Queue(maxsize=event_queue_depth)
         self._state_worker = threading.Thread(
@@ -55,7 +56,13 @@ class KeaClient:
     def connect(self):
         target = self._host + ":" + str(self._port)
         logger.info("Connecting to Kea server @ %s", target)
-        self._chan = grpc.insecure_channel(target)
+
+        if self._disable_tls:
+            self._chan = grpc.insecure_channel(target)
+        else:
+            creds = grpc.ssl_channel_credentials()
+            self._chan = grpc.secure_channel(target, creds)
+
         try:
             grpc.channel_ready_future(self._chan).result(timeout=10)
             self._stub = device_grpc.DeviceServiceStub(self._chan)

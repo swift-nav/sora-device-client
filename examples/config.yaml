@@ -73,7 +73,9 @@ format:
 # the default values)
 
 # Kea server configuration
-#host: api.staging.kea.swiftnav.com
-#host: api.dev.kea.swiftnav.com
+#host: grpc.dev.kea.swiftnav.com
+#host: grpc.staging.kea.swiftnav.com
 #host: localhost
+#port: 443
 #port: 10000
+#disable_tls: true
