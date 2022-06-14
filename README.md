@@ -12,6 +12,12 @@ The Kea Device Client consists of:
 # Installing
 
 ## Dependencies
+
+### Python
+You need to install a version of python. 
+```
+brew install python
+```
 We manage dependencies with PDM: https://pdm.fming.dev/usage/dependency/
 
 They are recorded in `pyproject.toml`. Note that there are dev and prod
@@ -27,6 +33,8 @@ this when you download the dependencies.
 pdm sync
 ```
 
+### Buf
+
 The Kea API uses a gRPC interface and the API libraries are built by
 [buf.build](https://buf.build/).
 
@@ -35,6 +43,14 @@ This requires the `buf` tool. Full installation instructions and options are
 ```bash
 brew install bufbuild/buf/buf
 ```
+
+#### Sign up
+As well as installing the tool, you will need to:
+
+1. Sign up to buf
+2. Be added to the swift-nav organisation on buf.build as a member (ask #Narthana Epa on slack)
+3. Generate a token
+4. Add your buf username and token 
 
 ## Building the API libraries
 ```bash
@@ -66,7 +82,7 @@ Default values are specified [here](keaclient/config_default.yaml).
 
 ### Environment variables
 
-Any parameter from the configruation file can also be specified as an
+Any parameter from the configuration file can also be specified as an
 environment variable. The environment variable name takes the format
 `KEACLIENT_PARAMETER` where the parameter name is converted to upper-case. Where
 nested parameters are used, they can be joined with a double underscore.
