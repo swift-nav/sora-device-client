@@ -49,8 +49,7 @@ As well as installing the tool, you will need to:
 
 1. Sign up to buf
 2. Be added to the swift-nav organisation on buf.build as a member (ask #Narthana Epa on slack)
-3. Generate a token
-4. Add your buf username and token 
+3. Login to the Buf Scheme Registry (BSR): https://docs.buf.build/tour/log-into-the-bsr
 
 ## Building the API libraries
 ```bash
