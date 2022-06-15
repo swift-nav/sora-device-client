@@ -15,7 +15,7 @@ The Kea Device Client consists of:
 
 ### Python
 You need to install a version of python. 
-```
+```bash
 brew install python
 ```
 We manage dependencies with PDM: https://pdm.fming.dev/usage/dependency/
@@ -31,6 +31,11 @@ You will need to choose a path to a version of python to use, but pdm can do
 this when you download the dependencies.
 ```bash
 pdm sync
+```
+
+If you change your mind, run
+```bash
+pdm use
 ```
 
 ### Buf
