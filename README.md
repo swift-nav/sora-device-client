@@ -10,15 +10,15 @@ The Kea Device Client consists of:
  - A Python client library - for deeper integration and customization
 
 # Installing
-
 ## Dependencies
-
 ### Python
 You need to install python 3.8.
 ```bash
 brew install python@3.8
 ```
-We manage dependencies with PDM: https://pdm.fming.dev/usage/dependency/
+Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv) or [asdf](https://asdf-vm.com/) to manage your python versions.
+
+We manage python dependencies with [PDM](https://pdm.fming.dev/usage/dependency/)
 
 They are recorded in `pyproject.toml`. Note that there are dev and prod
 dependencies.
@@ -37,6 +37,7 @@ If you change your mind, run
 ```bash
 pdm use
 ```
+and the prompt to select a python version by path will be presented again.
 
 ### Buf
 
