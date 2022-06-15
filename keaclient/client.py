@@ -7,8 +7,8 @@ import os
 import signal
 
 import kea.v1.common_pb2 as common_pb
-import kea.device.v1.device_pb2_grpc as device_grpc
-import kea.device.v1.device_pb2 as device_pb2
+import kea.device.v1.service_pb2_grpc as device_grpc
+import kea.device.v1.service_pb2 as device_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.struct_pb2 import Struct
 
