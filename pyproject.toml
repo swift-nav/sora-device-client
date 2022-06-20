@@ -6,11 +6,11 @@ authors = [
     {name = "Swift Developers", email = "developers@swift-nav.com"},
 ]
 dependencies = [
-    "grpcio==1.43.0",
+    "grpcio==1.46.3",
     "gtfs-realtime-bindings==0.0.7",
-    "requests==2.27.1",
-    "sbp>=4.1.3",
-    "confuse>=1.7.0",
+    "requests==2.28.0",
+    "sbp==4.4.0",
+    "confuse==1.7.0",
 ]
 requires-python = ">=3.10,<3.11"
 license = {text = "CUSTOM"}
