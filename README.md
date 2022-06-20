@@ -27,17 +27,14 @@ You will need to install the pdm cli to use it
 ```bash
 brew install pdm
 ```
-You will need to choose a path to a version of python to use, but pdm can do
-this when you download the dependencies.
+You will need to choose a installation of python 3.8 to use.
+```bash
+pdm use 3.8
+```
+Then download the dependencies of the current project.
 ```bash
 pdm sync
 ```
-
-If you change your mind, run
-```bash
-pdm use
-```
-and the prompt to select a python version by path will be presented again.
 
 ### Buf
 
