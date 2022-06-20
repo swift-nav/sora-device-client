@@ -36,4 +36,5 @@ include = ["__pypackages__", "grpc"]
 exclude = ["**/__pycache__"]
 reportMissingImports = true
 reportMissingTypeStubs = false
-pythonVersion="3.10"
+# needs to be kept in sync with buf.gen.yaml
+pythonVersion = "3.10"
