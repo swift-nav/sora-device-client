@@ -6,12 +6,14 @@ authors = [
     {name = "Swift Developers", email = "developers@swift-nav.com"},
 ]
 dependencies = [
+    # needs to be kept in sync with buf.gen.yaml
     "grpcio==1.46.3",
     "gtfs-realtime-bindings==0.0.7",
     "requests==2.28.0",
     "sbp==4.4.0",
     "confuse==1.7.0",
 ]
+# needs to be kept in sync with buf.gen.yaml
 requires-python = ">=3.10,<3.11"
 license = {text = "CUSTOM"}
 
@@ -34,3 +36,4 @@ include = ["__pypackages__", "grpc"]
 exclude = ["**/__pycache__"]
 reportMissingImports = true
 reportMissingTypeStubs = false
+pythonVersion="3.10"
