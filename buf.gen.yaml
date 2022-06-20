@@ -2,7 +2,7 @@ version: v1
 managed:
   enabled: true
 plugins:
-  - remote: buf.build/protocolbuffers/plugins/python:v3.19.1-1
+  - remote: buf.build/protocolbuffers/plugins/python:v21.1.0-1
     out: __pypackages__/3.10/lib
-  - remote: buf.build/grpc/plugins/python:v1.41.1-1
+  - remote: buf.build/grpc/plugins/python:v1.46.3-1
     out: __pypackages__/3.10/lib
