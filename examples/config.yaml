@@ -18,7 +18,7 @@ device-id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
 driver:
   # TCP socket driver
   tcp:
-    host: 192.168.0.222
+    host: localhost
     port: 55555
   # Serial port driver
   #serial:
