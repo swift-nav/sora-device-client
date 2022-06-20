@@ -12,9 +12,9 @@ The Kea Device Client consists of:
 # Installing
 ## Dependencies
 ### Python
-You need to install python 3.8.
+You need to install python 3.10.
 ```bash
-brew install python@3.8
+brew install python@3.10
 ```
 Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv) or [asdf](https://asdf-vm.com/) to manage your python versions.
 
@@ -27,11 +27,13 @@ You will need to install the pdm cli to use it
 ```bash
 brew install pdm
 ```
-You will need to choose a installation of python 3.8 to use.
+
+[Optional]You will need to choose a path to the python 3.10 installation created above.
 ```bash
-pdm use 3.8
+pdm use
 ```
-Then download the dependencies of the current project.
+
+Download the dependencies with. This will prompt you to choose a python version if you did not complete the optional step above.
 ```bash
 pdm sync
 ```
