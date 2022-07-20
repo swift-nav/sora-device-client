@@ -1,40 +1,28 @@
-[project]
-name = ""
-version = ""
-description = ""
-authors = [
-    {name = "Swift Developers", email = "developers@swift-nav.com"},
+[tool.poetry]
+name = "sora-device-client"
+version = "0.1.0"
+description = "A client to stream device location data to a sever for the SORA api"
+authors = ["Swift Navifation <developers@swiftnav.com>"]
+packages = [
+  { include = "sora" },
 ]
-dependencies = [
-    # needs to be kept in sync with buf.gen.yaml
-    "grpcio==1.46.3",
-    "gtfs-realtime-bindings==0.0.7",
-    "requests==2.28.0",
-    "sbp==4.4.0",
-    "confuse==1.7.0",
-]
-# needs to be kept in sync with buf.gen.yaml
-requires-python = ">=3.10,<3.11"
-license = {text = "CUSTOM"}
 
-[project.urls]
-homepage = ""
+[tool.poetry.dependencies]
+python = "^3.10"
+grpcio = "1.46.3" # must match version of grpc in buf.yaml
+gtfs-realtime-bindings = "^0.0.7"
+requests = "^2.28.0"
+sbp = "^4.4.0"
+confuse = "^1.7.0"
 
-[tool]
-[tool.pdm]
-[[tool.pdm.source]]
-name = "pypi"
-url = "https://pypi.org/simple"
-verify_ssl = true
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[tool.poetry.scripts]
+daemon = "sora_device_client.daemon:main"
 
 [build-system]
-requires = ["pdm-pep517"]
-build-backend = "pdm.pep517.api"
-
-[tool.pyright]
-include = ["__pypackages__", "grpc"]
-exclude = ["**/__pycache__"]
-reportMissingImports = true
-reportMissingTypeStubs = false
-# needs to be kept in sync with buf.gen.yaml
-pythonVersion = "3.10"
+requires = [
+  "poetry-core>=1.0.0"
+]
+build-backend = "poetry.core.masonry.api"

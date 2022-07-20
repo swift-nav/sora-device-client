@@ -1,5 +1,5 @@
-
 from dataclasses import dataclass
+
 
 @dataclass
 class Position:
@@ -7,11 +7,13 @@ class Position:
     lon: float
     height: float
 
+
 @dataclass
 class Orientation:
     pitch: float
     roll: float
     yaw: float
+
 
 @dataclass
 class Location:

@@ -1,12 +1,11 @@
-Kea Device Client
+Sora Device Client
 =================
 
-The Kea Device Client provides a set of simple tools to connect your device to
-Kea.
+The Sora Device Client provides a set of simple tools to connect your device to Sora.
 
-The Kea Device Client consists of:
+The Sora Device Client consists of:
 
- - A command-line client - the simplest way to connect to Kea
+ - A command-line client - the simplest way to connect to Sora
  - A Python client library - for deeper integration and customization
 
 # Installing
@@ -33,14 +32,14 @@ brew install pdm
 pdm use
 ```
 
-Download the dependencies with. This will prompt you to choose a python version if you did not complete the optional step above.
+Download the dependencies with pdm. This will prompt you to choose a python version if you did not complete the optional step above.
 ```bash
 pdm sync
 ```
 
 ### Buf
 
-The Kea API uses a gRPC interface and the API libraries are built by
+The Sora API uses a gRPC interface and the API libraries are built by
 [buf.build](https://buf.build/).
 
 This requires the `buf` tool. Full installation instructions and options are
@@ -78,24 +77,24 @@ The path to the configuration file can be passed as a command-line argument.
 
 Here are the default search paths for each platform:
 
- - Mac OS: `~/.config/keaclient` and `~/Library/Application Support/keaclient`
- - Other Unix: `~/.config/keaclient` and `/etc/keaclient`
- - Windows: `%APPDATA%\keaclient` where the `APPDATA` environment variable falls back to `%HOME%\AppData\Roaming` if undefined
+ - Mac OS: `~/.config/soraclient` and `~/Library/Application Support/soraclient`
+ - Other Unix: `~/.config/soraclient` and `/etc/soraclient`
+ - Windows: `%APPDATA%\soraclient` where the `APPDATA` environment variable falls back to `%HOME%\AppData\Roaming` if undefined
 
-Default values are specified [here](keaclient/config_default.yaml).
+Default values are specified [here](soraclient/config_default.yaml).
 
 ### Environment variables
 
 Any parameter from the configuration file can also be specified as an
 environment variable. The environment variable name takes the format
-`KEACLIENT_PARAMETER` where the parameter name is converted to upper-case. Where
+`SORACLIENT_PARAMETER` where the parameter name is converted to upper-case. Where
 nested parameters are used, they can be joined with a double underscore.
 
 Examples:
 
 ```bash
-export KEACLIENT_PORT=1234
-export KEACLIENT_SOURCES__TCP__HOST=192.168.0.123
+export SORACLIENT_PORT=1234
+export SORACLIENT_SOURCES__TCP__HOST=192.168.0.123
 ```
 
 Where the same parameter is set, environment variables take precedence over
@@ -105,7 +104,7 @@ config files.
 
 For documentation on the available command-line arguments, run
 ```bash
-pdm -v run python -m keaclient.daemon --help
+pdm -v run python -m soraclient.daemon --help
 ```
 
 Command line arguments have the highest precedence and will override
@@ -114,5 +113,5 @@ configuration from environment variables or config files.
 ## Running the daemon
 
 ```bash
-pdm -v run python -m keaclient.daemon [ARGS]
+pdm -v run python -m soraclient.daemon [ARGS]
 ```
