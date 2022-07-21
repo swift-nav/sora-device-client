@@ -100,6 +100,7 @@ celerybeat.pid
 
 # Environments
 .env
+.vscode
 .venv
 env/
 venv/
@@ -130,3 +131,8 @@ dmypy.json
 
 # Editors
 Session.vim
+.vscode
+
+
+sora
+!*/**/sora

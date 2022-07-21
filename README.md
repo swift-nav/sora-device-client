@@ -1,46 +1,34 @@
-Kea Device Client
+Sora Device Client
 =================
 
-The Kea Device Client provides a set of simple tools to connect your device to
-Kea.
+<!-- vim-markdown-toc GFM -->
 
-The Kea Device Client consists of:
+* [Installing](#installing)
+  * [Dependencies](#dependencies)
+    * [Buf](#buf)
+    * [Python](#python)
+* [Command-Line Client](#command-line-client)
+  * [Configuration](#configuration)
+    * [Configuration file](#configuration-file)
+    * [Environment variables](#environment-variables)
+    * [Command-line argument](#command-line-argument)
+* [Running the daemon](#running-the-daemon)
 
- - A command-line client - the simplest way to connect to Kea
+<!-- vim-markdown-toc -->
+
+The Sora Device Client provides a set of simple tools to connect your device to Sora.
+
+The Sora Device Client consists of:
+
+ - A command-line client - the simplest way to connect to Sora
  - A Python client library - for deeper integration and customization
 
 # Installing
 ## Dependencies
-### Python
-You need to install python 3.10.
-```bash
-brew install python@3.10
-```
-Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv) or [asdf](https://asdf-vm.com/) to manage your python versions.
-
-We manage python dependencies with [PDM](https://pdm.fming.dev/usage/dependency/)
-
-They are recorded in `pyproject.toml`. Note that there are dev and prod
-dependencies.
-
-You will need to install the pdm cli to use it
-```bash
-brew install pdm
-```
-
-[Optional]You will need to choose a path to the python 3.10 installation created above.
-```bash
-pdm use
-```
-
-Download the dependencies with. This will prompt you to choose a python version if you did not complete the optional step above.
-```bash
-pdm sync
-```
 
 ### Buf
 
-The Kea API uses a gRPC interface and the API libraries are built by
+The Sora API uses a gRPC interface and the API libraries are built by
 [buf.build](https://buf.build/).
 
 This requires the `buf` tool. Full installation instructions and options are
@@ -49,16 +37,30 @@ This requires the `buf` tool. Full installation instructions and options are
 brew install bufbuild/buf/buf
 ```
 
-#### Sign up
-As well as installing the tool, you will need to:
-
-1. Sign up to buf
-2. Be added to the swift-nav organisation on buf.build as a member (ask #Narthana Epa on slack)
-3. Login to the Buf Scheme Registry (BSR): https://docs.buf.build/tour/log-into-the-bsr
-
-## Building the API libraries
+Then the api libraries can be generated with:
 ```bash
 make grpc
+```
+
+### Python
+You need to install python 3.10.
+```bash
+brew install python@3.10
+```
+Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv) 
+or [asdf](https://asdf-vm.com/) to manage your python versions.
+
+We manage python dependencies with [Poetry](https://python-poetry.org/).
+
+They are recorded in `pyproject.toml`. Note that there are dev and prod dependencies.
+
+You will need to install the poetry cli to use it
+```bash
+brew install poetry
+```
+And then install the dependencies:
+```bash
+poetry install
 ```
 
 # Command-Line Client 
@@ -78,41 +80,40 @@ The path to the configuration file can be passed as a command-line argument.
 
 Here are the default search paths for each platform:
 
- - Mac OS: `~/.config/keaclient` and `~/Library/Application Support/keaclient`
- - Other Unix: `~/.config/keaclient` and `/etc/keaclient`
- - Windows: `%APPDATA%\keaclient` where the `APPDATA` environment variable falls back to `%HOME%\AppData\Roaming` if undefined
+ - Mac OS: `~/.config/sora-device-client` and `~/Library/Application Support/sora-device-client`
+ - Other Unix: `~/.config/sora-device-client` and `/etc/sora-device-client`
+ - Windows: `%APPDATA%\sora-device-client` where the `APPDATA` environment variable falls back to `%HOME%\AppData\Roaming` if undefined
 
-Default values are specified [here](keaclient/config_default.yaml).
+Default values are specified [here](sora-device-client/config_default.yaml).
 
 ### Environment variables
 
 Any parameter from the configuration file can also be specified as an
 environment variable. The environment variable name takes the format
-`KEACLIENT_PARAMETER` where the parameter name is converted to upper-case. Where
+`SORA_DEVICE_CLIENT_PARAMETER` where the parameter name is converted to upper-case. Where
 nested parameters are used, they can be joined with a double underscore.
 
 Examples:
 
 ```bash
-export KEACLIENT_PORT=1234
-export KEACLIENT_SOURCES__TCP__HOST=192.168.0.123
+export SORA_DEVICE_CLIENT_PORT=1234
+export SORA_DEVICE_CLIENT_SOURCES__TCP__HOST=192.168.0.123
 ```
 
-Where the same parameter is set, environment variables take precedence over
-config files.
+Where the same parameter is set, environment variables take precedence over config files.
 
 ### Command-line argument
 
 For documentation on the available command-line arguments, run
 ```bash
-pdm -v run python -m keaclient.daemon --help
+poetry run daemon --help
 ```
 
 Command line arguments have the highest precedence and will override
 configuration from environment variables or config files.
 
-## Running the daemon
+# Running the daemon
 
 ```bash
-pdm -v run python -m keaclient.daemon [ARGS]
+poetry run daemon [ARGS]
 ```

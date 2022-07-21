@@ -1,13 +1,13 @@
 # ==============================================================================
-# Kea Device Client configuration
+# Sora Device Client configuration
 # ==============================================================================
 
 # ==============================================================================
 # Device Configuration
 
-# The Device ID is a unique UUID for the device within Kea
+# The Device ID is a unique UUID for the device within Sora
 # It is a required configuration item
-device-id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+device-id: replace-me-with-a-uuid
 
 # ==============================================================================
 # Location Input Configuration
@@ -38,7 +38,7 @@ format:
   #nmea:
 
 # Decimate the location inputs by a constant factor
-#decimate: 10
+decimate: 10
 
 # ------------------------------------------------------------------------------
 # Recipes:
@@ -69,16 +69,17 @@ format:
 #  sbp:
 #    orientation: true
 
-# ==============================================================================
-# Advanced Options
-#
-# (you shouldn't need to set these unless you have a specific reason to override
-# the default values)
 
-# Kea server configuration
-#host: grpc.dev.kea.swiftnav.com
-#host: grpc.staging.kea.swiftnav.com
-#host: localhost
+# ==============================================================================
+# Sora server configuration
+
+# Enable exactly one of the following
+host: grpc.staging.sora.swiftnav.com
+port: 443
+
+#host: grpc.dev.sora.swiftnav.com
 #port: 443
+
+#host: localhost
 #port: 10000
 #disable_tls: true

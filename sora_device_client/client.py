@@ -6,32 +6,46 @@ import sys
 import os
 import signal
 
-import kea.v1.common_pb2 as common_pb
-import kea.device.v1.service_pb2_grpc as device_grpc
-import kea.device.v1.service_pb2 as device_pb2
+import sora.v1beta.common_pb2 as common_pb
+import sora.device.v1beta.service_pb2_grpc as device_grpc
+import sora.device.v1beta.service_pb2 as device_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.struct_pb2 import Struct
 
-DEFAULT_HOST = "grpc.staging.kea.swiftnav.com"
+DEFAULT_HOST = "grpc.staging.sora.swiftnav.com"
 DEFAULT_PORT = 443
 
-logger = logging.getLogger("KeaClient")
+logger = logging.getLogger("SoraDeviceClient")
+
 
 def show_log_output(verbose=False, debug=False):
     logging.basicConfig(
         stream=sys.stdout,
-        level=(logging.DEBUG if debug else logging.INFO if verbose else logging.WARNING),
+        level=(
+            logging.DEBUG if debug else logging.INFO if verbose else logging.WARNING
+        ),
         format="[%(asctime)s] %(levelname)s [%(name)s] %(message)s",
     )
+
 
 class ExitMain(Exception):
     pass
 
+
 def signal_handler(signal, frame):
     raise ExitMain()
 
-class KeaClient:
-    def __init__(self, device_id=None, host=DEFAULT_HOST, port=DEFAULT_PORT, disable_tls=False, state_queue_depth=0, event_queue_depth=0):
+
+class SoraDeviceClient:
+    def __init__(
+        self,
+        device_id=None,
+        host=DEFAULT_HOST,
+        port=DEFAULT_PORT,
+        disable_tls=False,
+        state_queue_depth=0,
+        event_queue_depth=0,
+    ):
         self._device_id = device_id
         if self._device_id:
             logger.info("Device ID: %s", self._device_id)
@@ -55,7 +69,7 @@ class KeaClient:
 
     def connect(self):
         target = self._host + ":" + str(self._port)
-        logger.info("Connecting to Kea server @ %s", target)
+        logger.info("Connecting to Sora server @ %s", target)
 
         if self._disable_tls:
             self._chan = grpc.insecure_channel(target)
