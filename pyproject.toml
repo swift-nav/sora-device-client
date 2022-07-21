@@ -3,6 +3,9 @@ name = "sora-device-client"
 version = "0.1.0"
 description = "A client to stream device location data to a sever for the SORA api"
 authors = ["Swift Navifation <developers@swiftnav.com>"]
+packages = [
+  { include = "sora" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
