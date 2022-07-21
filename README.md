@@ -11,26 +11,6 @@ The Sora Device Client consists of:
 # Installing
 ## Dependencies
 
-### Python
-You need to install python 3.10.
-```bash
-brew install python@3.10
-```
-Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv) or [asdf](https://asdf-vm.com/) to manage your python versions.
-
-We manage python dependencies with [Poetry](https://python-poetry.org/)
-
-They are recorded in `pyproject.toml`. Note that there are dev and prod dependencies.
-
-You will need to install the poetry cli to use it
-```bash
-brew install poetry
-```
-And then install the dependencies:
-```bash
-poetry install
-```
-
 ### Buf
 
 The Sora API uses a gRPC interface and the API libraries are built by
@@ -45,6 +25,27 @@ brew install bufbuild/buf/buf
 Then the api libraries can be generated with:
 ```bash
 make grpc
+```
+
+### Python
+You need to install python 3.10.
+```bash
+brew install python@3.10
+```
+Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv) 
+or [asdf](https://asdf-vm.com/) to manage your python versions.
+
+We manage python dependencies with [Poetry](https://python-poetry.org/).
+
+They are recorded in `pyproject.toml`. Note that there are dev and prod dependencies.
+
+You will need to install the poetry cli to use it
+```bash
+brew install poetry
+```
+And then install the dependencies:
+```bash
+poetry install
 ```
 
 # Command-Line Client 
@@ -96,7 +97,7 @@ poetry run daemon --help
 Command line arguments have the highest precedence and will override
 configuration from environment variables or config files.
 
-## Running the daemon
+# Running the daemon
 
 ```bash
 poetry run daemon [ARGS]
