@@ -1,3 +1,85 @@
-# Default configuration
-disable_tls: false
-decimate: 1
+# ==============================================================================
+# Sora Device Client configuration
+# ==============================================================================
+
+# ==============================================================================
+# Device Configuration
+
+# The Device ID is a unique UUID for the device within Sora
+# It is a required configuration item
+device-id: replace-me-with-a-uuid
+
+# ==============================================================================
+# Location Input Configuration
+
+# The driver describes how the client should obtain location information.
+# Exactly one driver should be specified.
+# The options are: tcp, serial
+driver:
+  # TCP socket driver
+  tcp:
+    host: localhost
+    port: 55555
+  # Serial port driver
+  #serial:
+  #  port: /dev/ttyUSB0
+  #  baud: 115200
+
+# The format describes how the location data should be decoded.
+# Exactly one driver should be specified.
+# The options are: sbp, nmea
+format:
+  # Swift Binary Protocol (SBP) format
+  sbp:
+    # Include orientation information? Only enable if the device is capable of
+    # outputting MSG_ORIENT_EULER
+    orientation: false
+  # NMEA format (no configuration options)
+  #nmea:
+
+# Decimate the location inputs by a constant factor
+#decimate: 10
+
+# ------------------------------------------------------------------------------
+# Recipes:
+
+# Typical GPS receiver connected over USB Serial
+#driver:
+#  serial:
+#    port: /dev/ttyUSB0
+#    baud: 115200
+#format:
+#  nmea:
+
+# Piksi Multi / Duro / Starling connected over TCP
+#driver:
+#  tcp:
+#    host: 192.168.0.222
+#    port: 55555
+#format:
+#  sbp:
+#    orientation: false
+
+# Duro Inertial connected over TCP (with orientation)
+#driver:
+#  tcp:
+#    host: 192.168.0.222
+#    port: 55555
+#format:
+#  sbp:
+#    orientation: true
+
+
+# ==============================================================================
+# Sora server configuration
+
+# Enable exactly one of the following
+host: grpc.staging.sora.swiftnav.com
+port: 443
+
+#host: grpc.dev.sora.swiftnav.com
+#port: 443
+
+#host: localhost
+#port: 10000
+#disable_tls: true
