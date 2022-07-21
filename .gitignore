@@ -134,5 +134,5 @@ Session.vim
 .vscode
 
 
-sora
-!*/**/sora
+sora_device_client/sora
+!sora_device_client/*/**/sora
