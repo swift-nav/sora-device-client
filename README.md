@@ -47,7 +47,7 @@ You need to install python 3.10.
 ```bash
 brew install python@3.10
 ```
-Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv) 
+Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv)
 or [asdf](https://asdf-vm.com/) to manage your python versions.
 
 We manage python dependencies with [Poetry](https://python-poetry.org/).
@@ -63,7 +63,7 @@ And then install the dependencies:
 poetry install
 ```
 
-# Command-Line Client 
+# Command-Line Client
 
 ## Configuration
 
@@ -74,17 +74,21 @@ The command-line client can be configured via:
 
 ### Configuration file
 
-Documentation is available in the [Example configuration file](examples/config.yaml).
-
 The path to the configuration file can be passed as a command-line argument.
 
-Here are the default search paths for each platform:
+Otherwise, here are the default search paths for each platform:
 
  - Mac OS: `~/.config/sora-device-client` and `~/Library/Application Support/sora-device-client`
  - Other Unix: `~/.config/sora-device-client` and `/etc/sora-device-client`
  - Windows: `%APPDATA%\sora-device-client` where the `APPDATA` environment variable falls back to `%HOME%\AppData\Roaming` if undefined
 
-Default values are specified [here](sora-device-client/config_default.yaml).
+Copy the default config file to one of the following locations:
+```bash
+mkdir -p ~/.config/sora-device-client
+cp sora-device-client/config_default.yaml ~/.config/sora-device-client
+```
+You will most likely have to edit the `driver` section to work with the location source for your system.
+If you don't specify a value, the value in [here](sora-device-client/config_default.yaml) will be used.
 
 ### Environment variables
 
@@ -96,8 +100,8 @@ nested parameters are used, they can be joined with a double underscore.
 Examples:
 
 ```bash
-export SORA_DEVICE_CLIENT_PORT=1234
-export SORA_DEVICE_CLIENT_SOURCES__TCP__HOST=192.168.0.123
+export SORADEVICECLIENT_PORT=1234
+export SORADEVICECLIENT_DRIVER__TCP__HOST=192.168.0.123
 ```
 
 Where the same parameter is set, environment variables take precedence over config files.
