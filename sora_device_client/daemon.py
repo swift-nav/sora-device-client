@@ -1,5 +1,3 @@
-from . import drivers
-from . import formats
 import logging
 import argparse
 import confuse
@@ -54,6 +52,9 @@ def main():
     decimate = config["decimate"].as_number()
 
     try:
+        from . import drivers
+        from . import formats
+
         with drivers.driver_from_config(config) as driver:
             with formats.format_from_config(config, driver) as source:
                 try:
