@@ -12,9 +12,6 @@ import sora.device.v1beta.service_pb2 as device_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.struct_pb2 import Struct
 
-DEFAULT_HOST = "grpc.staging.sora.swiftnav.com"
-DEFAULT_PORT = 443
-
 logger = logging.getLogger("SoraDeviceClient")
 
 
@@ -39,9 +36,9 @@ def signal_handler(signal, frame):
 class SoraDeviceClient:
     def __init__(
         self,
-        device_id=None,
-        host=DEFAULT_HOST,
-        port=DEFAULT_PORT,
+        device_id,
+        host,
+        port,
         disable_tls=False,
         state_queue_depth=0,
         event_queue_depth=0,
