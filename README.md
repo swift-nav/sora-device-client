@@ -47,7 +47,7 @@ You need to install python 3.10.
 ```bash
 brew install python@3.10
 ```
-Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv) 
+Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv)
 or [asdf](https://asdf-vm.com/) to manage your python versions.
 
 We manage python dependencies with [Poetry](https://python-poetry.org/).
@@ -63,7 +63,7 @@ And then install the dependencies:
 poetry install
 ```
 
-# Command-Line Client 
+# Command-Line Client
 
 ## Configuration
 
