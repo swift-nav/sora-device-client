@@ -25,7 +25,7 @@ def main():
     client.show_log_output(verbose=args.verbose, debug=args.debug)
     logger = logging.getLogger("SoraDeviceClient")
 
-    config = confuse.Configuration("sora-device-client", client.__name__)
+    config = confuse.Configuration("SoraDeviceClient", client.__name__)
     if args.config:
         try:
             config.set_file(args.config)

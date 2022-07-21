@@ -100,8 +100,8 @@ nested parameters are used, they can be joined with a double underscore.
 Examples:
 
 ```bash
-export SORA_DEVICE_CLIENT_PORT=1234
-export SORA_DEVICE_CLIENT_DRIVER__TCP__HOST=192.168.0.123
+export SORADEVICECLIENT_PORT=1234
+export SORADEVICECLIENT_DRIVER__TCP__HOST=192.168.0.123
 ```
 
 Where the same parameter is set, environment variables take precedence over config files.
