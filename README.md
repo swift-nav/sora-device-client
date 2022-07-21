@@ -1,6 +1,21 @@
 Sora Device Client
 =================
 
+<!-- vim-markdown-toc GFM -->
+
+* [Installing](#installing)
+  * [Dependencies](#dependencies)
+    * [Buf](#buf)
+    * [Python](#python)
+* [Command-Line Client](#command-line-client)
+  * [Configuration](#configuration)
+    * [Configuration file](#configuration-file)
+    * [Environment variables](#environment-variables)
+    * [Command-line argument](#command-line-argument)
+* [Running the daemon](#running-the-daemon)
+
+<!-- vim-markdown-toc -->
+
 The Sora Device Client provides a set of simple tools to connect your device to Sora.
 
 The Sora Device Client consists of:
