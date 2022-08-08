@@ -1,28 +1,18 @@
 import grpc
-import queue
-import threading
 import logging
-import sys
 import os
+import queue
 import signal
+import threading
+
+from google.protobuf.timestamp_pb2 import Timestamp
+from google.protobuf.struct_pb2 import Struct
 
 import sora.v1beta.common_pb2 as common_pb
 import sora.device.v1beta.service_pb2_grpc as device_grpc
 import sora.device.v1beta.service_pb2 as device_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
-from google.protobuf.struct_pb2 import Struct
 
 logger = logging.getLogger("SoraDeviceClient")
-
-
-def show_log_output(verbose=False, debug=False):
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=(
-            logging.DEBUG if debug else logging.INFO if verbose else logging.WARNING
-        ),
-        format="[%(asctime)s] %(levelname)s [%(name)s] %(message)s",
-    )
 
 
 class ExitMain(Exception):
@@ -44,8 +34,7 @@ class SoraDeviceClient:
         event_queue_depth=0,
     ):
         self._device_id = device_id
-        if self._device_id:
-            logger.info("Device ID: %s", self._device_id)
+        logger.info("Device ID: %s", self._device_id)
         self._host = host
         self._port = port
         self._disable_tls = disable_tls
