@@ -3,8 +3,8 @@ import click
 import confuse
 import sys
 
-from .cli.run import run
-from .cli.login import login
+from .run import run
+from .login import login
 
 logger = logging.getLogger("SoraDeviceClient")
 
