@@ -1,22 +1,27 @@
 import click
 import confuse
 import sys
+import logging
+
+logger = logging.getLogger("SoraDeviceClient")
 
 
 @click.command()
+@click.pass_obj
 @click.option("-i", "--device-id", help="Device Id")
-def run(config):
-    logger = logging.getLogger("SoraDeviceClient")
+def run(config, device_id):
+    click.echo(config.get())
 
-    from . import client
+    from ... import client
 
-    try:
-        device_id = config["device-id"].get()
-    except confuse.exceptions.NotFoundError:
-        sys.exit("Error: Device ID must be specified")
+    if not device_id:
+        try:
+            device_id = config["device-id"].get()
+        except confuse.exceptions.NotFoundError:
+            sys.exit("Error: Device ID must be specified")
 
     client = client.SoraDeviceClient(
-        device_id=config["device-id"].get(),
+        device_id=device_id,
         host=config["host"].get(),
         port=config["port"].as_number(),
     )
@@ -28,8 +33,8 @@ def run(config):
     decimate = config["decimate"].as_number()
 
     try:
-        from . import drivers
-        from . import formats
+        from ... import drivers
+        from ... import formats
 
         with drivers.driver_from_config(config) as driver:
             with formats.format_from_config(config, driver) as source:

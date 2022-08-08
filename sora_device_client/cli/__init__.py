@@ -20,24 +20,26 @@ def show_log_output(verbose=False, debug=False):
 
 
 @click.group()
-# @click.option("-c", "--config-file", help="Config file path")
+@click.option(
+    "-c", "--config-file", help="Config file path", type=click.Path(), default=None
+)
 @click.option("-v", "--verbose", count=True)
 @click.option("--debug/--no-debug", default=False)
 @click.pass_context
-def main(ctx, config_file):
-    click.echo(ctx)
+def main(ctx, config_file, verbose, debug):
     config = confuse.Configuration("SoraDeviceClient", __name__)
     if config_file:
         try:
             config.set_file(config_file)
         except confuse.exceptions.ConfigReadError:
             sys.exit(f"Error: Configuration file not found: {config_file}")
+
     config.set_env()
-    config.set_args(ctx)
+    config.set_args(ctx.default_map or {})
+
+    show_log_output(verbose, debug)
+    ctx.obj = config
 
 
 main.add_command(run)
 main.add_command(login)
-
-if __name__ == "__main__":
-    main(None, None)
