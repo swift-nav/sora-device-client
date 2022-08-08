@@ -1,8 +1,8 @@
 .PHONY: grpc
-grpc: sora_api
+grpc: sora
 
-sora_api:
 	buf generate buf.build/swift-nav/sora-api
+sora:
 
 .PHONY: clean
 clean:
