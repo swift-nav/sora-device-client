@@ -1,4 +1,3 @@
-import click
 import logging
 import sys
 import tomlkit
@@ -45,7 +44,7 @@ def callback(ctx: typer.Context, verbose: bool = False, debug: bool = False):
 @app.command()
 def login(ctx: typer.Context, device_id: str):
     """
-    Log into Sora Server with the provided device id
+    Log into Sora Server with the provided device id.
     """
     _, data = ctx.obj
 
@@ -65,11 +64,11 @@ def login(ctx: typer.Context, device_id: str):
 @app.command()
 def start(ctx: typer.Context):
     """
-    Start the sora-device-client and stream location data to the Sora Server
+    Start the sora-device-client and stream location data to the Sora Server.
     """
     config, data = ctx.obj
 
-    from ... import client
+    from . import client
 
     client = client.SoraDeviceClient(
         device_id=data["device-id"],
@@ -84,8 +83,8 @@ def start(ctx: typer.Context):
     decimate = config["decimate"]
 
     try:
-        from ... import drivers
-        from ... import formats
+        from . import drivers
+        from . import formats
 
         with drivers.driver_from_config(config) as driver:
             with formats.format_from_config(config, driver) as source:
