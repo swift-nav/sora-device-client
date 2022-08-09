@@ -1,0 +1,79 @@
+# ==============================================================================
+# Sora Device Client configuration
+# ==============================================================================
+
+# ==============================================================================
+# Location Input Configuration
+[location]
+# Decimate the location inputs by a constant factor
+decimate = 10
+
+# The driver describes how the client should obtain location information.
+# Exactly one driver should be specified.
+# The options are: tcp, serial
+
+# TCP socket driver
+[location.driver.tcp]
+host = "localhost"
+port = 55555
+
+# # Serial port driver
+# [driver.serial]
+# port = "/dev/ttyUSB0"
+# baud = 115200
+
+# The format describes how the location data should be decoded.
+# Exactly one driver should be specified.
+# The options are: sbp, nmea
+
+# Swift Binary Protocol (SBP) format
+[location.format.sbp]
+# Include orientation information? Only enable if the device is capable of
+# outputting MSG_ORIENT_EULER
+orientation = false
+
+## NMEA format (no configuration options)
+# [format.nmea]
+
+# ------------------------------------------------------------------------------
+# Recipes:
+
+# # Typical GPS receiver connected over USB Serial
+# [location]
+# decimate = 10
+# [location.driver.serial]
+# port = "/dev/ttyUSB0"
+# baud = 115200
+# [location.format.nmea]
+
+# # Piksi Multi / Duro / Starling connected over TCP
+# [location]
+# decimate = 10
+# [location.driver.tcp]
+# host = "192.168.0.222"
+# port = 55555
+# [location.format.sbp]
+# orientation = false
+
+# # Duro Inertial connected over TCP (with orientation)
+# [location]
+# decimate = 10
+# [location.driver.tcp]
+# host = "192.168.0.222"
+# port = 55555
+# [location.format.sbp]
+# orientation = true
+
+# ==============================================================================
+# Sora server configuration
+
+[server]
+host = "grpc.staging.sora.swiftnav.com"
+port =  443
+
+# host = "grpc.dev.sora.swiftnav.com"
+# port = 443
+#
+# host = "localhost"
+# port = 10000
+# disable_tls = true
