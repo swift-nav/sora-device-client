@@ -4,10 +4,27 @@ import tomlkit
 import typer
 import uuid
 
-from .exceptions import ConfigValueError
+from typing import Tuple
+
+from .exceptions import ConfigValueError, DataFileNotFound
 from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
 
 app = typer.Typer()
+
+
+def read_config() -> Tuple[tomlkit.TOMLDocument, tomlkit.TOMLDocument]:
+    with open(CONFIG_FILE_PATH, mode="rt", encoding="utf8") as f:
+        config = tomlkit.load(f)
+
+    try:
+        with open(DATA_FILE_PATH, mode="rt", encoding="utf8") as f:
+            data = tomlkit.load(f)
+    except FileNotFoundError:
+        raise DataFileNotFound(
+            f"Data file not found at path: {DATA_FILE_PATH}. Please run sora-device-client login --device-id <DEVICE_ID> to create it."
+        )
+
+    return (config, data)
 
 
 def setup_logger(verbose=False, debug=False):
@@ -21,32 +38,22 @@ def setup_logger(verbose=False, debug=False):
 
 
 @app.callback()
-def callback(ctx: typer.Context, verbose: bool = False, debug: bool = False):
+def callback(verbose: bool = False, debug: bool = False):
     """
     Sora Device Client
     """
-    with open(CONFIG_FILE_PATH, mode="rt", encoding="utf8") as f:
-        config = tomlkit.load(f)
-
-    try:
-        with open(DATA_FILE_PATH, mode="rt", encoding="utf8") as f:
-            data = tomlkit.load(f)
-    except FileNotFoundError:
-        raise typer.Exit(
-            f"Error: not logged in. Please run sora login --device-id <DEVICE_ID>"
-        )
-
-    ctx.obj = (config, data)
-
     setup_logger(verbose, debug)
 
 
 @app.command()
-def login(ctx: typer.Context, device_id: str):
+def login(device_id: str):
     """
     Log into Sora Server with the provided device id.
     """
-    _, data = ctx.obj
+    try:
+        config, data = read_config()
+    except DataFileNotFound:
+        pass
 
     if not device_id:
         try:
@@ -62,11 +69,14 @@ def login(ctx: typer.Context, device_id: str):
 
 
 @app.command()
-def start(ctx: typer.Context):
+def start():
     """
     Start the sora-device-client and stream location data to the Sora Server.
     """
-    config, data = ctx.obj
+    try:
+        config, data = read_config()
+    except DataFileNotFound as e:
+        raise typer.Exit(f"{e}")
 
     from .client import SoraDeviceClient
 
