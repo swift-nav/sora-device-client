@@ -8,20 +8,11 @@ logger = logging.getLogger("SoraDeviceClient")
 
 @click.command()
 @click.pass_obj
-@click.option("-i", "--device-id", help="Device Id")
-def run(config, device_id):
-    click.echo(config.get())
-
+def run(config):
     from ... import client
 
-    if not device_id:
-        try:
-            device_id = config["device-id"].get()
-        except confuse.exceptions.NotFoundError:
-            sys.exit("Error: Device ID must be specified")
-
     client = client.SoraDeviceClient(
-        device_id=device_id,
+        device_id=config["device-id"].get(),
         host=config["host"].get(),
         port=config["port"].as_number(),
     )
