@@ -4,7 +4,7 @@ import tomlkit
 import typer
 import uuid
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 from .exceptions import ConfigValueError, DataFileNotFound
 from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
@@ -46,7 +46,9 @@ def callback(verbose: bool = False, debug: bool = False):
 
 
 @app.command()
-def login(device_id: str):
+def login(
+    device_id: Optional[str] = typer.Option(None, help="Device Id to log into Sora as.")
+):
     """
     Log into Sora Server with the provided device id.
     """
