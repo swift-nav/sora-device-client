@@ -1,9 +1,11 @@
 import logging
+import os
 import sys
 import tomlkit
 import typer
 import uuid
 
+from rich import print
 from typing import Optional, Tuple
 
 from .exceptions import ConfigValueError, DataFileNotFound
@@ -12,19 +14,19 @@ from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
 app = typer.Typer()
 
 
-def read_config() -> Tuple[tomlkit.TOMLDocument, tomlkit.TOMLDocument]:
+def read_config() -> tomlkit.TOMLDocument:
     with open(CONFIG_FILE_PATH, mode="rt", encoding="utf8") as f:
-        config = tomlkit.load(f)
+        return tomlkit.load(f)
 
+
+def read_data() -> tomlkit.TOMLDocument:
     try:
         with open(DATA_FILE_PATH, mode="rt", encoding="utf8") as f:
-            data = tomlkit.load(f)
+            return tomlkit.load(f)
     except FileNotFoundError:
         raise DataFileNotFound(
             f"Data file not found at path: {DATA_FILE_PATH}. Please run sora-device-client login --device-id <DEVICE_ID> to create it."
         )
-
-    return (config, data)
 
 
 def setup_logger(verbose=False, debug=False):
@@ -46,27 +48,23 @@ def callback(verbose: bool = False, debug: bool = False):
 
 
 @app.command()
-def login(
-    device_id: Optional[str] = typer.Option(None, help="Device Id to log into Sora as.")
-):
+def login(device_id: str = typer.Option(..., help="Device Id to log into Sora as.")):
     """
     Log into Sora Server with the provided device id.
     """
     try:
-        config, data = read_config()
-    except DataFileNotFound:
-        pass
-
-    if not device_id:
-        try:
-            device_id = data["device-id"]
-        except KeyError:
-            sys.exit("Please specify a device-id")
+        data = read_data()
+        print(f"Found existing data: {data}")
+        return
+    except DataFileNotFound as e:
+        data = tomlkit.parse("")
 
     data["device-id"] = str(uuid.UUID(device_id))
 
-    DATA_FILE_PATH.mkdir(mode=0o700, parents=True, exist_ok=True)
-    with open(DATA_FILE_PATH, "w+", encoding="utf8") as f:
+    DATA_FILE_PATH.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    with open(
+        os.open(DATA_FILE_PATH, os.O_CREAT | os.O_WRONLY, 0o600), "w+", encoding="utf8"
+    ) as f:
         f.write(tomlkit.dumps(data))
 
 
@@ -75,8 +73,9 @@ def start():
     """
     Start the sora-device-client and stream location data to the Sora Server.
     """
+    config = read_config()
     try:
-        config, data = read_config()
+        data = read_config()
     except DataFileNotFound as e:
         raise typer.Exit(f"{e}")
 
