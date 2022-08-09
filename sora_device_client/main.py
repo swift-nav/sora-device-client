@@ -5,13 +5,13 @@ import tomlkit
 import typer
 import uuid
 
-from rich import print
-from typing import Optional, Tuple
+from rich.logging import RichHandler
 
 from .exceptions import ConfigValueError, DataFileNotFound
 from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
 
 app = typer.Typer()
+log = logging.getLogger(__name__)
 
 
 def read_config() -> tomlkit.TOMLDocument:
@@ -31,11 +31,11 @@ def read_data() -> tomlkit.TOMLDocument:
 
 def setup_logger(verbose=False, debug=False):
     logging.basicConfig(
-        stream=sys.stdout,
         level=(
             logging.DEBUG if debug else logging.INFO if verbose else logging.WARNING
         ),
-        format="[%(asctime)s] %(levelname)s [%(name)s] %(message)s",
+        format="%(message)s",
+        handlers=[RichHandler()],
     )
 
 
@@ -54,7 +54,7 @@ def login(device_id: str = typer.Option(..., help="Device Id to log into Sora as
     """
     try:
         data = read_data()
-        print(f"Found existing data: {data}")
+        log.warning(f"Found existing data: {data}. Ignoring input device-id")
         return
     except DataFileNotFound as e:
         data = tomlkit.parse("")
@@ -110,4 +110,4 @@ def start():
                 except KeyboardInterrupt:
                     pass
     except ConfigValueError as err:
-        sys.exit(f"Error: {err}")
+        raise typer.Exit(f"Error: {err}")
