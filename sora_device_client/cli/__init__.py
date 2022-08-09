@@ -1,15 +1,14 @@
 import logging
-import click
 import os
 import tomlkit
+import typer
 import sys
 
 
 from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
-from .run import run
-from .login import login
 
 logger = logging.getLogger("SoraDeviceClient")
+app = typer.Typer()
 
 
 def setup_logger(verbose=False, debug=False):
@@ -22,11 +21,8 @@ def setup_logger(verbose=False, debug=False):
     )
 
 
-@click.group()
-@click.option("-v", "--verbose", count=True)
-@click.option("--debug/--no-debug", default=False)
-@click.pass_context
-def main(ctx, verbose, debug):
+@app.callback()
+def callback(ctx: typer.Context, verbose: bool = False, debug: bool = False):
     with open(CONFIG_FILE_PATH, mode="rt", encoding="utf8") as f:
         config = tomlkit.load(f)
 
@@ -34,12 +30,10 @@ def main(ctx, verbose, debug):
         with open(DATA_FILE_PATH, mode="rt", encoding="utf8") as f:
             data = tomlkit.load(f)
     except FileNotFoundError:
-        sys.exit(f"Error: not logged in. Please run sora login --device-id <DEVICE_ID>")
+        raise typer.Exit(
+            f"Error: not logged in. Please run sora login --device-id <DEVICE_ID>"
+        )
 
     ctx.obj = (config, data)
 
     setup_logger(verbose, debug)
-
-
-main.add_command(run)
-main.add_command(login)
