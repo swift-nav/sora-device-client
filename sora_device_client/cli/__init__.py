@@ -1,6 +1,7 @@
 import logging
 import click
 import os
+import pathlib
 import tomlkit
 import sys
 
@@ -12,7 +13,7 @@ from .login import login
 
 logger = logging.getLogger("SoraDeviceClient")
 dirs = AppDirs("sora-device-client", "SwiftNav")
-CONFIG_FILE = os.path.join(dirs.user_config_dir, "config.toml")
+CONFIG_FILE_PATH = pathlib.Path(dirs.user_config_dir).joinpath("config.toml")
 
 
 def setup_logger(verbose=False, debug=False):
@@ -30,7 +31,7 @@ def setup_logger(verbose=False, debug=False):
 @click.option("--debug/--no-debug", default=False)
 @click.pass_context
 def main(ctx, verbose, debug):
-    with open(CONFIG_FILE, mode="rt", encoding="utf8") as f:
+    with open(CONFIG_FILE_PATH, mode="rt", encoding="utf8") as f:
         config = tomlkit.load(f)
 
     ctx.obj = config
