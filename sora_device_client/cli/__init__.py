@@ -9,7 +9,7 @@ from .login import login
 logger = logging.getLogger("SoraDeviceClient")
 
 
-def show_log_output(verbose=False, debug=False):
+def setup_logger(verbose=False, debug=False):
     logging.basicConfig(
         stream=sys.stdout,
         level=(
@@ -35,9 +35,9 @@ def main(ctx, config_file, verbose, debug):
             sys.exit(f"Error: Configuration file not found: {config_file}")
 
     config.set_env()
-
-    show_log_output(verbose, debug)
     ctx.obj = config
+
+    setup_logger(verbose, debug)
 
 
 main.add_command(run)
