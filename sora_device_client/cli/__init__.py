@@ -35,7 +35,6 @@ def main(ctx, config_file, verbose, debug):
             sys.exit(f"Error: Configuration file not found: {config_file}")
 
     config.set_env()
-    config.set_args(ctx.default_map or {})
 
     show_log_output(verbose, debug)
     ctx.obj = config
