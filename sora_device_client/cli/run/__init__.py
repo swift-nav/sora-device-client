@@ -9,11 +9,13 @@ logger = logging.getLogger("SoraDeviceClient")
 
 @click.command()
 @click.pass_obj
-def run(config):
+def run(obj):
+    config, data = obj
+
     from ... import client
 
     client = client.SoraDeviceClient(
-        device_id=config["device-id"],
+        device_id=data["device-id"],
         host=config["server"]["host"],
         port=config["server"]["port"],
     )
