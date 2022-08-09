@@ -20,21 +20,12 @@ def setup_logger(verbose=False, debug=False):
 
 
 @click.group()
-@click.option(
-    "-c", "--config-file", help="Config file path", type=click.Path(), default=None
-)
 @click.option("-v", "--verbose", count=True)
 @click.option("--debug/--no-debug", default=False)
 @click.pass_context
-def main(ctx, config_file, verbose, debug):
     config = confuse.Configuration("sora-device-client")
-    if config_file:
-        try:
-            config.set_file(config_file)
-        except confuse.exceptions.ConfigReadError:
-            sys.exit(f"Error: Configuration file not found: {config_file}")
-
     config.set_env()
+def main(ctx, verbose, debug):
     ctx.obj = config
 
     setup_logger(verbose, debug)
