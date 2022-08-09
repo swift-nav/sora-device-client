@@ -1,12 +1,17 @@
 import logging
-import confuse
+
+from ..exceptions import ConfigValueError
 
 logger = logging.getLogger("SoraDeviceClient")
 
 
+class DriverConfigValueError(Exception):
+    pass
+
+
 def tcp_driver_from_config(config):
-    tcp_host = config["host"].get()
-    tcp_port = config["port"].as_number()
+    tcp_host = config["host"]
+    tcp_port = config["port"]
     logger.info(f"Using TCP driver: {tcp_host}:{tcp_port}")
     from sbp.client.drivers.network_drivers import TCPDriver
 
@@ -14,8 +19,8 @@ def tcp_driver_from_config(config):
 
 
 def serial_driver_from_config(config):
-    port = config["port"].get()
-    baud = config["baud"].as_number()
+    port = config["port"]
+    baud = config["baud"]
     logger.info(f"Using Serial driver: {port} @ {baud}")
     from sbp.client.drivers.pyserial_driver import PySerialDriver
 
@@ -26,17 +31,13 @@ DRIVERS = {"tcp": tcp_driver_from_config, "serial": serial_driver_from_config}
 
 
 def driver_from_config(config):
-    drivers_cfg = config["driver"].get()
+    drivers_cfg = config["driver"]
     if len(drivers_cfg) != 1:
-        raise confuse.exceptions.ConfigValueError(
-            "Exactly one driver should be specified"
-        )
+        raise ConfigValueError("Exactly one driver should be specified")
 
     driver_type = list(drivers_cfg.keys())[0]
     if driver_type not in DRIVERS:
-        raise confuse.exceptions.ConfigValueError(
-            f'Unknown driver type "{driver_type}"'
-        )
+        raise ConfigValueError(f'Unknown driver type "{driver_type}"')
 
     driver_config = config["driver"][driver_type]
     return DRIVERS[driver_type](driver_config)

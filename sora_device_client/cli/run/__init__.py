@@ -1,7 +1,8 @@
 import click
-import confuse
 import sys
 import logging
+
+from ...exceptions import ConfigValueError
 
 logger = logging.getLogger("SoraDeviceClient")
 
@@ -12,16 +13,16 @@ def run(config):
     from ... import client
 
     client = client.SoraDeviceClient(
-        device_id=config["device-id"].get(),
-        host=config["host"].get(),
-        port=config["port"].as_number(),
+        device_id=config["device-id"],
+        host=config["server"]["host"],
+        port=config["server"]["port"],
     )
 
     client.start()
 
     from sbp.navigation import SBP_MSG_POS_LLH
 
-    decimate = config["decimate"].as_number()
+    decimate = config["decimate"]
 
     try:
         from ... import drivers
@@ -39,5 +40,5 @@ def run(config):
                             )
                 except KeyboardInterrupt:
                     pass
-    except confuse.exceptions.ConfigError as err:
+    except ConfigValueError as err:
         sys.exit(f"Error: {err}")

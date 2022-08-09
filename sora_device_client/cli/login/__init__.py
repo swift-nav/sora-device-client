@@ -8,6 +8,3 @@ import uuid
 def login(config, device_id):
     if device_id:
         device_uuid = uuid.UUID(device_id)
-        config["device-id"].set(str(device_uuid))
-
-    click.echo(config.dump())
