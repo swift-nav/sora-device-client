@@ -14,6 +14,7 @@ from .login import login
 logger = logging.getLogger("SoraDeviceClient")
 dirs = AppDirs("sora-device-client", "SwiftNav")
 CONFIG_FILE_PATH = pathlib.Path(dirs.user_config_dir).joinpath("config.toml")
+DATA_FILE_PATH = pathlib.Path(dirs.user_data_dir).joinpath("data.toml")
 
 
 def setup_logger(verbose=False, debug=False):
@@ -34,7 +35,13 @@ def main(ctx, verbose, debug):
     with open(CONFIG_FILE_PATH, mode="rt", encoding="utf8") as f:
         config = tomlkit.load(f)
 
-    ctx.obj = config
+    try:
+        with open(DATA_FILE_PATH, mode="rt", encoding="utf8") as f:
+            data = tomlkit.load(f)
+    except FileNotFoundError:
+        sys.exit(f"Error: not logged in. Please run sora login")
+
+    ctx.obj = (config, data)
 
     setup_logger(verbose, debug)
 
