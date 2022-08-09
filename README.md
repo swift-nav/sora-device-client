@@ -10,9 +10,7 @@ Sora Device Client
 * [Command-Line Client](#command-line-client)
   * [Configuration](#configuration)
     * [Configuration file](#configuration-file)
-    * [Environment variables](#environment-variables)
     * [Command-line argument](#command-line-argument)
-* [Running the daemon](#running-the-daemon)
 
 <!-- vim-markdown-toc -->
 
@@ -74,50 +72,22 @@ The command-line client can be configured via:
 
 ### Configuration file
 
-The path to the configuration file can be passed as a command-line argument.
+Here are the paths for each platform for the config file:
 
-Otherwise, here are the default search paths for each platform:
-
- - Mac OS: `~/.config/sora-device-client` and `~/Library/Application Support/sora-device-client`
- - Other Unix: `~/.config/sora-device-client` and `/etc/sora-device-client`
- - Windows: `%APPDATA%\sora-device-client` where the `APPDATA` environment variable falls back to `%HOME%\AppData\Roaming` if undefined
+ - Mac OS: `~/Library/Application Support/sora-device-client/config.toml`.
+ - Other Unix: `$XDG_CONFIG_HOME/sora-device-client/config.toml`. Usually this is `~/.config/sora-device-client/config.toml`.
+ - Windows: `%APPDATA%\SwiftNav\sora-device-client` where the `APPDATA` environment variable falls back to `%HOME%\AppData\Roaming` if undefined
 
 Copy the default config file to one of the following locations:
 ```bash
 mkdir -p ~/.config/sora-device-client
-cp sora-device-client/config_default.yaml ~/.config/sora-device-client
+cp config_example.toml ~/.config/sora-device-client
 ```
 You will most likely have to edit the `driver` section to work with the location source for your system.
-If you don't specify a value, the value in [here](sora-device-client/config_default.yaml) will be used.
-
-### Environment variables
-
-Any parameter from the configuration file can also be specified as an
-environment variable. The environment variable name takes the format
-`SORA_DEVICE_CLIENT_PARAMETER` where the parameter name is converted to upper-case. Where
-nested parameters are used, they can be joined with a double underscore.
-
-Examples:
-
-```bash
-export SORADEVICECLIENT_PORT=1234
-export SORADEVICECLIENT_DRIVER__TCP__HOST=192.168.0.123
-```
-
-Where the same parameter is set, environment variables take precedence over config files.
 
 ### Command-line argument
 
 For documentation on the available command-line arguments, run
 ```bash
-poetry run daemon --help
-```
-
-Command line arguments have the highest precedence and will override
-configuration from environment variables or config files.
-
-# Running the daemon
-
-```bash
-poetry run daemon [ARGS]
+poetry run sora --help
 ```

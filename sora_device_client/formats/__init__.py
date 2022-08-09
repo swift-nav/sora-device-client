@@ -1,7 +1,12 @@
 import logging
-import confuse
 
-logger = logging.getLogger("SoraDeviceClient")
+from ..exceptions import ConfigValueError
+
+log = logging.getLogger(__name__)
+
+
+class FormatConfigValueError(Exception):
+    pass
 
 
 def sbp_format_from_config(config, driver):
@@ -18,15 +23,11 @@ FORMATS = {
 def format_from_config(config, driver):
     formats_cfg = config["format"].get()
     if len(formats_cfg) != 1:
-        raise confuse.exceptions.ConfigValueError(
-            "Exactly one format should be specified"
-        )
+        raise ConfigValueError("Exactly one format should be specified")
 
     format_type = list(formats_cfg.keys())[0]
     if format_type not in FORMATS:
-        raise confuse.exceptions.ConfigValueError(
-            f'Unknown format type "{format_type}"'
-        )
+        raise ConfigValueError(f'Unknown format type "{format_type}"')
 
     format_config = config["format"][format_type]
     return FORMATS[format_type](format_config, driver)

@@ -1,28 +1,18 @@
 import grpc
-import queue
-import threading
 import logging
-import sys
 import os
+import queue
 import signal
+import threading
+
+from google.protobuf.timestamp_pb2 import Timestamp
+from google.protobuf.struct_pb2 import Struct
 
 import sora.v1beta.common_pb2 as common_pb
 import sora.device.v1beta.service_pb2_grpc as device_grpc
 import sora.device.v1beta.service_pb2 as device_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
-from google.protobuf.struct_pb2 import Struct
 
-logger = logging.getLogger("SoraDeviceClient")
-
-
-def show_log_output(verbose=False, debug=False):
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=(
-            logging.DEBUG if debug else logging.INFO if verbose else logging.WARNING
-        ),
-        format="[%(asctime)s] %(levelname)s [%(name)s] %(message)s",
-    )
+log = logging.getLogger(__name__)
 
 
 class ExitMain(Exception):
@@ -44,8 +34,7 @@ class SoraDeviceClient:
         event_queue_depth=0,
     ):
         self._device_id = device_id
-        if self._device_id:
-            logger.info("Device ID: %s", self._device_id)
+        log.info("Device ID: %s", self._device_id)
         self._host = host
         self._port = port
         self._disable_tls = disable_tls
@@ -66,7 +55,7 @@ class SoraDeviceClient:
 
     def connect(self):
         target = self._host + ":" + str(self._port)
-        logger.info("Connecting to Sora server @ %s", target)
+        log.info("Connecting to Sora server @ %s", target)
 
         if self._disable_tls:
             self._chan = grpc.insecure_channel(target)
@@ -77,9 +66,9 @@ class SoraDeviceClient:
         try:
             grpc.channel_ready_future(self._chan).result(timeout=10)
             self._stub = device_grpc.DeviceServiceStub(self._chan)
-            logger.info("Connected")
+            log.info("Connected")
         except:
-            logger.info("Disconnected")
+            log.info("Disconnected")
             self._chan.close()
             self._chan = None
             self._stub = None
@@ -126,8 +115,8 @@ class SoraDeviceClient:
             type=event_type,
             payload=payload_pb,
         )
-        logger.info("Sending event for device %s:", device_id)
-        logger.debug(event)
+        log.info("Sending event for device %s:", device_id)
+        log.debug(event)
         self._event_queue.put(event)
 
     def send_state(self, state=None, device_id=None, lat=None, lon=None):
@@ -150,6 +139,6 @@ class SoraDeviceClient:
             pos=common_pb.Position(lat=lat, lon=lon),
             user_data=state_pb,
         )
-        logger.info("Sending state for device %s:", device_id)
-        logger.debug(device_state)
+        log.info("Sending state for device %s:", device_id)
+        log.debug(device_state)
         self._state_queue.put(device_pb2.StreamDeviceStateRequest(state=device_state))
