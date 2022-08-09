@@ -1,13 +1,9 @@
-import logging
-import os
-import tomlkit
-import typer
-import sys
 import click
+import logging
+import sys
 import tomlkit
 import typer
 import uuid
-import sys
 
 from .exceptions import ConfigValueError
 from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
