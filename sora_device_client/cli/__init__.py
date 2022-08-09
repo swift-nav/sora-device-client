@@ -27,7 +27,7 @@ def show_log_output(verbose=False, debug=False):
 @click.option("--debug/--no-debug", default=False)
 @click.pass_context
 def main(ctx, config_file, verbose, debug):
-    config = confuse.Configuration("SoraDeviceClient", __name__)
+    config = confuse.Configuration("sora-device-client")
     if config_file:
         try:
             config.set_file(config_file)
