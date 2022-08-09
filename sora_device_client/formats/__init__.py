@@ -2,7 +2,7 @@ import logging
 
 from ..exceptions import ConfigValueError
 
-logger = logging.getLogger("SoraDeviceClient")
+log = logging.getLogger(__name__)
 
 
 class FormatConfigValueError(Exception):

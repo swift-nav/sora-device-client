@@ -2,7 +2,7 @@ import logging
 
 from ..exceptions import ConfigValueError
 
-logger = logging.getLogger("SoraDeviceClient")
+log = logging.getLogger(__name__)
 
 
 class DriverConfigValueError(Exception):
@@ -12,7 +12,7 @@ class DriverConfigValueError(Exception):
 def tcp_driver_from_config(config):
     tcp_host = config["host"]
     tcp_port = config["port"]
-    logger.info(f"Using TCP driver: {tcp_host}:{tcp_port}")
+    log.info(f"Using TCP driver: {tcp_host}:{tcp_port}")
     from sbp.client.drivers.network_drivers import TCPDriver
 
     return TCPDriver(tcp_host, tcp_port)
@@ -21,7 +21,7 @@ def tcp_driver_from_config(config):
 def serial_driver_from_config(config):
     port = config["port"]
     baud = config["baud"]
-    logger.info(f"Using Serial driver: {port} @ {baud}")
+    log.info(f"Using Serial driver: {port} @ {baud}")
     from sbp.client.drivers.pyserial_driver import PySerialDriver
 
     return PySerialDriver(port, baud)
