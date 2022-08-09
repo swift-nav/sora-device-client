@@ -68,9 +68,9 @@ def start(ctx: typer.Context):
     """
     config, data = ctx.obj
 
-    from . import client
+    from .client import SoraDeviceClient
 
-    client = client.SoraDeviceClient(
+    client = SoraDeviceClient(
         device_id=data["device-id"],
         host=config["server"]["host"],
         port=config["server"]["port"],
