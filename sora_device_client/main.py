@@ -41,7 +41,9 @@ def setup_logger(verbose=False, debug=False):
 
 def write_data(path: pathlib.Path, data: tomlkit.TOMLDocument):
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    with open(os.open(path, os.O_CREAT | os.O_TRUNC, 0o600), encoding="utf8") as f:
+    with os.fdopen(
+        os.open(path, os.O_CREAT | os.O_RDWR | os.O_TRUNC, 0o600), "w+", encoding="utf8"
+    ) as f:
         f.write(tomlkit.dumps(data))
 
 
