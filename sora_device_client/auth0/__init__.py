@@ -54,7 +54,7 @@ class Auth0Client:
         data = self._get_device_code()
         print(f"Navigate to: {data['verification_uri_complete']}")
         console = Console()
-        console.input("Press enter to confirm you have logged in via the uri")
+        console.input("Press enter to confirm you have logged in via the uri\n")
 
         token = self._poll_for_token(data["device_code"], data["interval"])
         return token
