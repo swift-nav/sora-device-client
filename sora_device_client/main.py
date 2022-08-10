@@ -72,6 +72,25 @@ def login(device_id: str = typer.Option(..., help="Device Id to log into Sora as
     write_data(DATA_FILE_PATH, data)
 
 
+
+@app.command()
+def logout():
+    """
+    Log the device out of Sora Server.
+    """
+    try:
+        data = read_data()
+    except DataFileNotFound:
+        raise typer.Exit("Device not logged in.")
+
+    try:
+        del data["device-id"]
+    except tomlkit.container.NonExistentKey:
+        pass
+
+    write_data(DATA_FILE_PATH, data)
+
+
 @app.command()
 def start():
     """
