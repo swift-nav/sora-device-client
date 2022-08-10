@@ -17,7 +17,7 @@ class Auth0Client:
         payload = {
             "client_id": self.client_id,
             "scope": "send:device_state,send:events,offline_access",
-            "audience": "",
+            "audience": self.audience,
         }
         headers = {"content-type": "application/x-www-form-urlencoded"}
         r = requests.post(f"https://{self.host}/oauth/device/code", payload, headers)
