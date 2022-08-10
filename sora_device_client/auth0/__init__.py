@@ -26,7 +26,7 @@ class Auth0Client:
 
         return r.json()
 
-    def _poll_for_token(self, device_code: str, interval: int) -> dict:
+    def _poll_for_tokens(self, device_code: str, interval: int) -> dict:
         delay = interval
         while True:
             payload = {
@@ -43,7 +43,7 @@ class Auth0Client:
                 elif error == "expired_token":
                     raise Exception("Token expired")
                 elif error == "access_denied":
-                    raise Exception("Access Denied")
+                    raise Exception("Access denied")
 
                 time.sleep(delay)
                 continue
@@ -51,10 +51,12 @@ class Auth0Client:
             return r.json()
 
     def register_device(self):
-        data = self._get_device_code()
-        print(f"Navigate to: {data['verification_uri_complete']}")
+        device_code_data = self._get_device_code()
+        print(f"Navigate to: {device_code_data['verification_uri_complete']}")
         console = Console()
         console.input("Press enter to confirm you have logged in via the uri\n")
 
-        token = self._poll_for_token(data["device_code"], data["interval"])
+        token = self._poll_for_tokens(
+            device_code_data["device_code"], device_code_data["interval"]
+        )
         return token
