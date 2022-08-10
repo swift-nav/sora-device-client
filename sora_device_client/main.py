@@ -39,6 +39,12 @@ def setup_logger(verbose=False, debug=False):
     )
 
 
+def write_data(path: pathlib.Path, data: tomlkit.TOMLDocument):
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    with open(os.open(path, os.O_CREAT | os.O_TRUNC, 0o600), encoding="utf8") as f:
+        f.write(tomlkit.dumps(data))
+
+
 @app.callback()
 def callback(verbose: bool = False, debug: bool = False):
     """
@@ -61,11 +67,7 @@ def login(device_id: str = typer.Option(..., help="Device Id to log into Sora as
 
     data["device-id"] = str(uuid.UUID(device_id))
 
-    DATA_FILE_PATH.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    with open(
-        os.open(DATA_FILE_PATH, os.O_CREAT | os.O_WRONLY, 0o600), "w+", encoding="utf8"
-    ) as f:
-        f.write(tomlkit.dumps(data))
+    write_data(DATA_FILE_PATH, data)
 
 
 @app.command()
