@@ -15,13 +15,13 @@ log = logging.getLogger(__name__)
 
 
 def read_config() -> tomlkit.TOMLDocument:
-    with open(CONFIG_FILE_PATH, mode="rt", encoding="utf8") as f:
+    with open(CONFIG_FILE_PATH, mode="r", encoding="utf8") as f:
         return tomlkit.load(f)
 
 
 def read_data() -> tomlkit.TOMLDocument:
     try:
-        with open(DATA_FILE_PATH, mode="rt", encoding="utf8") as f:
+        with open(DATA_FILE_PATH, mode="r", encoding="utf8") as f:
             return tomlkit.load(f)
     except FileNotFoundError:
         raise DataFileNotFound(
