@@ -1,11 +1,13 @@
 import logging
 import os
+import pathlib
 import sys
 import tomlkit
 import typer
 import uuid
 
 from rich.logging import RichHandler
+from typing import Optional
 
 from .exceptions import ConfigValueError, DataFileNotFound
 from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
@@ -15,13 +17,13 @@ log = logging.getLogger(__name__)
 
 
 def read_config() -> tomlkit.TOMLDocument:
-    with open(CONFIG_FILE_PATH, mode="rt", encoding="utf8") as f:
+    with open(CONFIG_FILE_PATH, mode="r", encoding="utf8") as f:
         return tomlkit.load(f)
 
 
 def read_data() -> tomlkit.TOMLDocument:
     try:
-        with open(DATA_FILE_PATH, mode="rt", encoding="utf8") as f:
+        with open(DATA_FILE_PATH, mode="r", encoding="utf8") as f:
             return tomlkit.load(f)
     except FileNotFoundError:
         raise DataFileNotFound(
@@ -39,6 +41,14 @@ def setup_logger(verbose=False, debug=False):
     )
 
 
+def write_data(path: pathlib.Path, data: tomlkit.TOMLDocument):
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    with os.fdopen(
+        os.open(path, os.O_CREAT | os.O_RDWR | os.O_TRUNC, 0o600), "w+", encoding="utf8"
+    ) as f:
+        f.write(tomlkit.dumps(data))
+
+
 @app.callback()
 def callback(verbose: bool = False, debug: bool = False):
     """
@@ -48,24 +58,64 @@ def callback(verbose: bool = False, debug: bool = False):
 
 
 @app.command()
-def login(device_id: str = typer.Option(..., help="Device Id to log into Sora as.")):
+def login(
+    device_id: Optional[str] = typer.Option(..., help="Device Id to log into Sora as.")
+):
     """
     Log into Sora Server with the provided device id.
+
+    The behaviour depends on two things:
+        1. Is there a data file?
+        2. Has --device-id been specified?
+
+    1 & 2:
+        ignore device-id, print message that device_id is going to be used
+
+    1 & ~2:
+        print message that device_id is going to be used
+
+    ~1 & 2:
+        save device-id to data file
+
+    ~1 & ~2:
+        error
     """
     try:
         data = read_data()
-        log.warning(f"Found existing data: {data}. Ignoring input device-id")
-        return
-    except DataFileNotFound as e:
+    except DataFileNotFound:
         data = tomlkit.parse("")
+
+    try:
+        device_id = data["device-id"]
+        typer.echo(f"Already logged in as device {device_id}.")
+        return
+    except KeyError:
+        if not device_id:
+            raise typer.Exit("--device-id must be specified if not already logged in.")
 
     data["device-id"] = str(uuid.UUID(device_id))
 
-    DATA_FILE_PATH.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    with open(
-        os.open(DATA_FILE_PATH, os.O_CREAT | os.O_WRONLY, 0o600), "w+", encoding="utf8"
-    ) as f:
-        f.write(tomlkit.dumps(data))
+    write_data(DATA_FILE_PATH, data)
+
+    typer.echo(f"Logged in as device {device_id}")
+
+
+@app.command()
+def logout():
+    """
+    Log the device out of Sora Server.
+    """
+    try:
+        data = read_data()
+    except DataFileNotFound:
+        raise typer.Exit("Device not logged in.")
+
+    try:
+        del data["device-id"]
+    except tomlkit.container.NonExistentKey:
+        pass
+
+    write_data(DATA_FILE_PATH, data)
 
 
 @app.command()
@@ -75,7 +125,7 @@ def start():
     """
     config = read_config()
     try:
-        data = read_config()
+        data = read_data()
     except DataFileNotFound as e:
         raise typer.Exit(f"{e}")
 
@@ -91,14 +141,14 @@ def start():
 
     from sbp.navigation import SBP_MSG_POS_LLH
 
-    decimate = config["decimate"]
+    decimate = config["location"]["decimate"]
 
     try:
         from . import drivers
         from . import formats
 
-        with drivers.driver_from_config(config) as driver:
-            with formats.format_from_config(config, driver) as source:
+        with drivers.driver_from_config(config["location"]) as driver:
+            with formats.format_from_config(config["location"], driver) as source:
                 try:
                     for i, loc in enumerate(source):
                         if i % decimate == 0:

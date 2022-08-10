@@ -81,7 +81,7 @@ Here are the paths for each platform for the config file:
 Copy the default config file to one of the following locations:
 ```bash
 mkdir -p ~/.config/sora-device-client
-cp config_example.toml ~/.config/sora-device-client
+cp sora_device_client/config_example.toml ~/.config/sora-device-client
 ```
 You will most likely have to edit the `driver` section to work with the location source for your system.
 
