@@ -1,11 +1,13 @@
 import logging
 import os
+import pathlib
 import sys
 import tomlkit
 import typer
 import uuid
 
 from rich.logging import RichHandler
+from typing import Optional
 
 from .exceptions import ConfigValueError, DataFileNotFound
 from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
@@ -56,21 +58,46 @@ def callback(verbose: bool = False, debug: bool = False):
 
 
 @app.command()
-def login(device_id: str = typer.Option(..., help="Device Id to log into Sora as.")):
+def login(
+    device_id: Optional[str] = typer.Option(..., help="Device Id to log into Sora as.")
+):
     """
     Log into Sora Server with the provided device id.
+
+    The behaviour depends on two things:
+        1. Is there a data file?
+        2. Has --device-id been specified?
+
+    1 & 2:
+        ignore device-id, print message that device_id is going to be used
+
+    1 & ~2:
+        print message that device_id is going to be used
+
+    ~1 & 2:
+        save device-id to data file
+
+    ~1 & ~2:
+        error
     """
     try:
         data = read_data()
-        log.warning(f"Found existing data: {data}. Ignoring input device-id")
-        return
-    except DataFileNotFound as e:
+    except DataFileNotFound:
         data = tomlkit.parse("")
+
+    try:
+        device_id = data["device-id"]
+        typer.echo(f"Already logged in as device {device_id}.")
+        return
+    except KeyError:
+        if not device_id:
+            raise typer.Exit("--device-id must be specified if not already logged in.")
 
     data["device-id"] = str(uuid.UUID(device_id))
 
     write_data(DATA_FILE_PATH, data)
 
+    typer.echo(f"Logged in as device {device_id}")
 
 
 @app.command()
