@@ -75,7 +75,7 @@ def start():
     """
     config = read_config()
     try:
-        data = read_config()
+        data = read_data()
     except DataFileNotFound as e:
         raise typer.Exit(f"{e}")
 
