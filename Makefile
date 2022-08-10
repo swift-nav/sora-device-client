@@ -1,5 +1,4 @@
-SORA_API_REF=3674176de04d453b9d89dab9e316232a
-SOURCES := $(shell find sora_device_client -name "*.py")
+SORA_API_REF := 3674176de04d453b9d89dab9e316232a
 
 # If the first argument is "run"...
 ifeq (run,$(firstword $(MAKECMDGOALS)))
@@ -22,7 +21,7 @@ run: build
 sora: buf.gen.yaml
 	buf generate buf.build/swift-nav/sora-api:$(SORA_API_REF)
 
-.venv: sora $(SOURCES) pyproject.toml poetry.toml poetry.lock
+.venv: sora pyproject.toml poetry.toml poetry.lock
 	poetry install
 
 .PHONY: clean
