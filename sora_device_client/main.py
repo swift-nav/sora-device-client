@@ -11,9 +11,14 @@ from typing import Optional
 
 from .exceptions import ConfigValueError, DataFileNotFound
 from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
+from .auth0 import Auth0Client
 
 app = typer.Typer()
 log = logging.getLogger(__name__)
+
+AUTH0_DOMAIN = "nepa-test.au.auth0.com"
+AUTH0_CLIENT_ID = "rg4u984ZG8OKaMUL44geh397QpX1ozcr"
+AUTH0_AUDIENCE = "http://localhost:10000"
 
 
 def read_config() -> tomlkit.TOMLDocument:
@@ -92,6 +97,10 @@ def login(
     except KeyError:
         if not device_id:
             raise typer.Exit("--device-id must be specified if not already logged in.")
+
+    client = Auth0Client(AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE)
+    res = client.register_device()
+    typer.echo(res)
 
     data["device-id"] = str(uuid.UUID(device_id))
 
