@@ -91,14 +91,14 @@ def start():
 
     from sbp.navigation import SBP_MSG_POS_LLH
 
-    decimate = config["decimate"]
+    decimate = config["location"]["decimate"]
 
     try:
         from . import drivers
         from . import formats
 
-        with drivers.driver_from_config(config) as driver:
-            with formats.format_from_config(config, driver) as source:
+        with drivers.driver_from_config(config["location"]) as driver:
+            with formats.format_from_config(config["location"], driver) as source:
                 try:
                     for i, loc in enumerate(source):
                         if i % decimate == 0:
