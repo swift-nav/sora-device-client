@@ -3,15 +3,17 @@ SOURCES := $(shell find sora_device_client -name "*.py")
 
 # If the first argument is "run"...
 ifeq (run,$(firstword $(MAKECMDGOALS)))
-  # use the rest as arguments for "run"
-  RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  # ...and turn them into do-nothing targets
-  $(eval $(RUN_ARGS):;@:)
-	# $(eval $(RUN_ARGS):dummy;@:)
+# use the rest as arguments for "run"
+RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+# ...and turn them into do-nothing targets
+$(eval $(RUN_ARGS): dummy;@:)
 endif
 
 .PHONY: build
 build: sora .venv
+
+.PHONY: dummy
+dummy:
 
 .PHONY: run
 run: build
