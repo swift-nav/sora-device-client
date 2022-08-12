@@ -5,6 +5,19 @@ from dataclasses import dataclass
 from http import HTTPStatus
 from rich import print
 from rich.console import Console
+from typing import Optional, Tuple, TypedDict
+
+
+class DeviceCodeData(TypedDict):
+    device_code: str
+    interval: int
+    verification_uri_complete: str
+    verification_uri: str
+
+
+class TokenData(TypedDict):
+    access_token: str
+    refresh_token: Optional[str]
 
 
 @dataclass
@@ -13,7 +26,7 @@ class Auth0Client:
     client_id: str
     audience: str
 
-    def _get_device_code(self) -> dict:
+    def _get_device_code(self) -> DeviceCodeData:
         payload = {
             "client_id": self.client_id,
             "scope": "send:device_state send:events offline_access",  # NOTE: scopes are space delimited
@@ -28,7 +41,7 @@ class Auth0Client:
 
         return r.json()
 
-    def _poll_for_tokens(self, device_code: str, interval: int) -> dict:
+    def _poll_for_tokens(self, device_code: str, interval: int) -> TokenData:
         delay = interval
         payload = {
             "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
@@ -54,14 +67,18 @@ class Auth0Client:
 
             return r.json()
 
-    def register_device(self):
+    def register_device(self) -> TokenData:
         device_code_data = self._get_device_code()
         print(f"Continue login at: {device_code_data['verification_uri_complete']}")
         print(f"and verify that the code matches {device_code_data['device_code']}")
         console = Console()
         console.input("Press enter after you have logged in via the above URL.\n")
 
-        token = self._poll_for_tokens(
+        token_data = self._poll_for_tokens(
             device_code_data["device_code"], device_code_data["interval"]
         )
-        return token
+
+        return {
+            "access_token": token_data["access_token"],
+            "refresh_token": token_data["refresh_token"],
+        }
