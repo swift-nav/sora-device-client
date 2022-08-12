@@ -19,7 +19,9 @@ class Auth0Client:
             "scope": "send:device_state send:events offline_access",  # NOTE: scopes are space delimited
             "audience": self.audience,
         }
-        headers = {"content-type": "application/x-www-form-urlencoded"}
+        headers = {
+            "content-type": "application/x-www-form-urlencoded",
+        }
         r = requests.post(f"https://{self.host}/oauth/device/code", payload, headers)
         if r.status_code != HTTPStatus.OK:
             raise Exception(f"Failed to get device code: {r.status_code}")
@@ -28,13 +30,15 @@ class Auth0Client:
 
     def _poll_for_tokens(self, device_code: str, interval: int) -> dict:
         delay = interval
+        payload = {
+            "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+            "device_code": device_code,
+            "client_id": self.client_id,
+        }
+        headers = {
+            "content-type": "application/x-www-form-urlencoded",
+        }
         while True:
-            payload = {
-                "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
-                "device_code": device_code,
-                "client_id": self.client_id,
-            }
-            headers = {"content-type": "application/x-www-form-urlencoded"}
             r = requests.post(f"https://{self.host}/oauth/token", payload, headers)
             if r.status_code != HTTPStatus.OK:
                 error = r.json()["error"]
