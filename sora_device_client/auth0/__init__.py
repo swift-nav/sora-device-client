@@ -16,7 +16,7 @@ class Auth0Client:
     def _get_device_code(self) -> dict:
         payload = {
             "client_id": self.client_id,
-            "scope": "send:device_state send:events offline_access",  # NOTE: scopes are blocks
+            "scope": "send:device_state send:events offline_access",  # NOTE: scopes are space delimited
             "audience": self.audience,
         }
         headers = {"content-type": "application/x-www-form-urlencoded"}
