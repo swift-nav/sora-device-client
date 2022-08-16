@@ -64,7 +64,7 @@ def callback(verbose: bool = False, debug: bool = False):
 
 @app.command()
 def login(
-    device_id: Optional[str] = typer.Option(..., help="Device Id to log into Sora as.")
+    device_id: Optional[str] = typer.Option(None, help="Device Id to log into Sora as.")
 ):
     """
     Log into Sora Server with the provided device id.
