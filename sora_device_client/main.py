@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 AUTH0_DOMAIN = "nepa-test.au.auth0.com"
 AUTH0_CLIENT_ID = "rg4u984ZG8OKaMUL44geh397QpX1ozcr"
-AUTH0_AUDIENCE = "http://localhost:10000"
+AUTH0_AUDIENCE = "http://localhost:10000:/sora.app.v1beta.AppService"
 
 
 def read_config() -> tomlkit.TOMLDocument:
