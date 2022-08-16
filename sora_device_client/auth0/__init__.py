@@ -28,7 +28,7 @@ class Auth0Client:
     def _get_device_code(self) -> DeviceCodeData:
         payload = {
             "client_id": self.client_id,
-            "scope": "send:device_state send:events offline_access",  # NOTE: scopes are space delimited
+            "scope": "",  # NOTE: scopes are space delimited
             "audience": self.audience,
         }
         headers = {
