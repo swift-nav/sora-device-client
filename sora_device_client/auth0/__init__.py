@@ -17,7 +17,6 @@ class DeviceCodeData(TypedDict):
 
 class TokenData(TypedDict):
     access_token: str
-    refresh_token: Optional[str]
 
 
 @dataclass
@@ -80,5 +79,4 @@ class Auth0Client:
 
         return {
             "access_token": token_data["access_token"],
-            "refresh_token": token_data["refresh_token"],
         }
