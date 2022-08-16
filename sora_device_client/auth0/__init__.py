@@ -13,6 +13,7 @@ class DeviceCodeData(TypedDict):
     interval: int
     verification_uri_complete: str
     verification_uri: str
+    user_code: str
 
 
 class TokenData(TypedDict):
@@ -69,7 +70,7 @@ class Auth0Client:
     def register_device(self) -> TokenData:
         device_code_data = self._get_device_code()
         print(f"Continue login at: {device_code_data['verification_uri_complete']}")
-        print(f"and verify that the code matches {device_code_data['device_code']}")
+        print(f"and verify that the code matches {device_code_data['user_code']}")
         console = Console()
         console.input("Press enter after you have logged in via the above URL.\n")
 
