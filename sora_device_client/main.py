@@ -74,7 +74,7 @@ def login(
         2. Has --device-id been specified?
 
     1 & 2:
-        ignore device-id, print message that device_id is going to be used
+        ignore device-id from data file, print message that device_id is going to be used
 
     1 & ~2:
         print message that device_id is going to be used
