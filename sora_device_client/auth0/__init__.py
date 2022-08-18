@@ -28,9 +28,9 @@ class Auth0Client:
 
     def _get_device_code(self) -> DeviceCodeData:
         payload = {
+            "audience": self.audience,
             "client_id": self.client_id,
             "scope": "",  # NOTE: scopes are space delimited
-            "audience": self.audience,
         }
         headers = {
             "content-type": "application/x-www-form-urlencoded",
