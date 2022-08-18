@@ -4,10 +4,11 @@ import pathlib
 import sys
 import tomlkit
 import typer
-import uuid
 
+from rich import print
 from rich.logging import RichHandler
 from typing import Optional
+from uuid import UUID
 
 from .exceptions import ConfigValueError, DataFileNotFound
 from .paths import CONFIG_FILE_PATH, DATA_FILE_PATH
@@ -91,22 +92,23 @@ def login(
         data = tomlkit.parse("")
 
     try:
-        device_id = data["device-id"]
-        typer.echo(f"Already logged in as device {device_id}.")
+        device_uuid = UUID(data["device-id"])
+        print(f"Already logged in as device {device_id}.")
         return
     except KeyError:
         if not device_id:
-            raise typer.Exit("--device-id must be specified if not already logged in.")
+          client = Auth0Client(AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE)
+          device_uuid, device_access_token = client.register_device()
+          data["device-access-token"] = device_access_token
+        else:
+            device_uuid = UUID(device_id)
 
-    client = Auth0Client(AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE)
-    res = client.register_device()
-    typer.echo(res)
 
-    data["device-id"] = str(uuid.UUID(device_id))
+    data["device-id"] = str(device_uuid)
 
     write_data(DATA_FILE_PATH, data)
 
-    typer.echo(f"Logged in as device {device_id}")
+    print(f"Logged in as device {device_uuid}")
 
 
 @app.command()
