@@ -5,6 +5,7 @@ import sys
 import tomlkit
 import typer
 
+from deepmerge import always_merger
 from rich import print
 from rich.logging import RichHandler
 from typing import Optional
@@ -71,7 +72,7 @@ def login(
     Log into Sora Server with the provided device id.
 
     The behaviour depends on two things:
-        1. Is there a data file?
+        1. Is there a data file with a device.id key?
         2. Has --device-id been specified?
 
     1 & 2:
@@ -92,19 +93,18 @@ def login(
         data = tomlkit.parse("")
 
     try:
-        device_uuid = UUID(data["device-id"])
-        print(f"Already logged in as device {device_id}.")
+        device_uuid = UUID(data["device"]["id"])
+        print(f"Already logged in as device {device_uuid}.")
         return
-    except KeyError:
+    except tomlkit.exceptions.NonExistentKey:
         if not device_id:
-          client = Auth0Client(AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE)
-          device_uuid, device_access_token = client.register_device()
-          data["device-access-token"] = device_access_token
+            client = Auth0Client(AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE)
+            device_uuid, device_access_token = client.register_device()
+            always_merger.merge(data, {"device": {"access_token": device_access_token}})
         else:
             device_uuid = UUID(device_id)
 
-
-    data["device-id"] = str(device_uuid)
+    always_merger.merge(data, {"device": {"id": str(device_uuid)}})
 
     write_data(DATA_FILE_PATH, data)
 
