@@ -13,7 +13,7 @@ from ..exceptions import DataFileNotFound
 app = typer.Typer()
 
 
-@app.command()
+@app.callback()
 def login(
     device_id: Optional[str] = typer.Option(None, help="Device Id to log into Sora as.")
 ):

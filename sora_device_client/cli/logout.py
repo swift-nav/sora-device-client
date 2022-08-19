@@ -10,7 +10,7 @@ from ..config import DATA_FILE_PATH, read_data, write_data
 app = typer.Typer()
 
 
-@app.command()
+@app.callback()
 def logout():
     """
     Log the device out of Sora Server.
@@ -25,4 +25,4 @@ def logout():
     except tomlkit.container.NonExistentKey:
         pass
 
-    write_data(DATA_FILE_PATH, data)
+    write_data(data)

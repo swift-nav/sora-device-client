@@ -1,11 +1,12 @@
 import typer
 
+from ..config import read_config, read_data
 from ..exceptions import ConfigValueError, DataFileNotFound
 
 app = typer.Typer()
 
 
-@app.command()
+@app.callback()
 def start():
     """
     Start the sora-device-client and stream location data to the Sora Server.
@@ -14,7 +15,7 @@ def start():
     try:
         data = read_data()
     except DataFileNotFound as e:
-        raise typer.Exit(f"{e}")
+        raise typer.Exit(e)
 
     from ..client import SoraDeviceClient
 
