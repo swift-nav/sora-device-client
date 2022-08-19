@@ -10,10 +10,7 @@ from ..auth0 import Auth0Client, AUTH0_AUDIENCE, AUTH0_CLIENT_ID, AUTH0_DOMAIN
 from ..config import read_data, write_data
 from ..exceptions import DataFileNotFound
 
-app = typer.Typer()
 
-
-@app.callback()
 def login(
     device_id: Optional[str] = typer.Option(None, help="Device Id to log into Sora as.")
 ):

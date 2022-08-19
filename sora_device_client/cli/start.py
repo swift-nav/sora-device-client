@@ -3,10 +3,7 @@ import typer
 from ..config import read_config, read_data
 from ..exceptions import ConfigValueError, DataFileNotFound
 
-app = typer.Typer()
 
-
-@app.callback()
 def start():
     """
     Start the sora-device-client and stream location data to the Sora Server.

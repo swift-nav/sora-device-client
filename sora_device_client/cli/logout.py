@@ -7,10 +7,7 @@ from rich.logging import RichHandler
 from ..exceptions import DataFileNotFound
 from ..config import DATA_FILE_PATH, read_data, write_data
 
-app = typer.Typer()
 
-
-@app.callback()
 def logout():
     """
     Log the device out of Sora Server.

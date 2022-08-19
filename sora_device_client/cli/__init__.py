@@ -12,9 +12,6 @@ from ..exceptions import DataFileNotFound
 
 log = logging.getLogger(__name__)
 app = typer.Typer()
-app.add_typer(login.app, name="login")
-app.add_typer(logout.app, name="logout")
-app.add_typer(start.app, name="start")
 
 
 def setup_logger(verbose=False, debug=False):
@@ -33,3 +30,8 @@ def callback(verbose: bool = False, debug: bool = False):
     Sora Device Client
     """
     setup_logger(verbose, debug)
+
+
+app.command()(login.login)
+app.command()(logout.logout)
+app.command()(start.start)
