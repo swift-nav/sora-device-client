@@ -10,6 +10,9 @@ from rich.console import Console
 from typing import Optional, Tuple, TypedDict
 from uuid import UUID
 
+AUTH0_DOMAIN = "nepa-test.au.auth0.com"
+AUTH0_CLIENT_ID = "rg4u984ZG8OKaMUL44geh397QpX1ozcr"
+AUTH0_AUDIENCE = "http://localhost:10000:/sora.device.v1beta.DeviceService"
 
 
 class DeviceCodeData(TypedDict):
@@ -84,20 +87,23 @@ class Auth0Client:
         )
 
         access_token = token_data["access_token"]
-        device_id, device_access_token = extractDeviceIdAndAcessTokenFromJWT(access_token)
+        device_id, device_access_token = extractDeviceIdAndAcessTokenFromJWT(
+            access_token
+        )
 
         return (device_id, device_access_token)
+
 
 def extractDeviceIdAndAcessTokenFromJWT(jwt: str) -> Tuple[UUID, str]:
     device_access_token = extractClaimsFromJWT(jwt)["device_access_token"]
     return extractClaimsFromJWT(device_access_token)["device_id"], device_access_token
 
+
 def extractClaimsFromJWT(jwt: str) -> dict:
-    payload = jwt.split('.')[1]
+    payload = jwt.split(".")[1]
     padded = padToMultpleOf(4, "=", payload)
     decoded = b64decode(padded)
     return json.loads(decoded)
-
 
 
 def padToMultpleOf(n: int, pad: str, input: str) -> str:
@@ -110,4 +116,4 @@ def padToMultpleOf(n: int, pad: str, input: str) -> str:
     """
     lenPadding = -len(input) % n
 
-    return input + pad*lenPadding
+    return input + pad * lenPadding

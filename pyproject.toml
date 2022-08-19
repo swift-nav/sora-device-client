@@ -23,7 +23,7 @@ deepmerge = "^1.0.1"
 pytest = "^7.1"
 
 [tool.poetry.scripts]
-sora = "sora_device_client.main:app"
+sora = "sora_device_client.cli:app"
 
 [build-system]
 requires = [
