@@ -84,8 +84,10 @@ class SoraDeviceClient:
         self._event_worker.start()
 
     def _state_stream_sender(self, itr):
+        metadata = [("authorization", "Bearer " + self._access_token)]
         try:
-            self._stub.StreamDeviceState(itr)
+            for x in itr:
+                self._stub.StreamDeviceState(x, metadata=metadata)
         except grpc._channel._InactiveRpcError as e:
             if e.code() == grpc.StatusCode.UNAVAILABLE:
                 logging.info(
