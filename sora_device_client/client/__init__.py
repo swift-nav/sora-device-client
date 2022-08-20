@@ -23,6 +23,7 @@ class ExitMain(Exception):
 def signal_handler(signal, frame):
     raise ExitMain()
 
+
 class SoraDeviceClient:
     def __init__(
         self,
