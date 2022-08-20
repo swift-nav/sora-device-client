@@ -87,7 +87,7 @@ class Auth0Client:
         )
 
         access_token = token_data["access_token"]
-        device_id, device_access_token = jwt.extractDeviceIdAndAcessTokenFromJWT(
+        device_id, device_access_token = jwt.extract_device_id_and_access_token(
             access_token
         )
 
