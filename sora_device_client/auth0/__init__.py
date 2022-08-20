@@ -1,14 +1,14 @@
-import json
 import requests
 import time
 
-from base64 import b64decode
 from dataclasses import dataclass
 from http import HTTPStatus
 from rich import print
 from rich.console import Console
-from typing import Optional, Tuple, TypedDict
+from typing import Tuple, TypedDict
 from uuid import UUID
+
+from . import jwt
 
 AUTH0_DOMAIN = "nepa-test.au.auth0.com"
 AUTH0_CLIENT_ID = "rg4u984ZG8OKaMUL44geh397QpX1ozcr"
@@ -87,33 +87,8 @@ class Auth0Client:
         )
 
         access_token = token_data["access_token"]
-        device_id, device_access_token = extractDeviceIdAndAcessTokenFromJWT(
+        device_id, device_access_token = jwt.extractDeviceIdAndAcessTokenFromJWT(
             access_token
         )
 
         return (device_id, device_access_token)
-
-
-def extractDeviceIdAndAcessTokenFromJWT(jwt: str) -> Tuple[UUID, str]:
-    device_access_token = extractClaimsFromJWT(jwt)["device_access_token"]
-    return extractClaimsFromJWT(device_access_token)["device_id"], device_access_token
-
-
-def extractClaimsFromJWT(jwt: str) -> dict:
-    payload = jwt.split(".")[1]
-    padded = padToMultpleOf(4, "=", payload)
-    decoded = b64decode(padded)
-    return json.loads(decoded)
-
-
-def padToMultpleOf(n: int, pad: str, input: str) -> str:
-    """
-    It is assumed that pad is of length 1.
-
-    Notice that we want:
-        len(input) + lenPadding % n == 0
-    basic algbra then gives:
-    """
-    lenPadding = -len(input) % n
-
-    return input + pad * lenPadding
