@@ -102,7 +102,7 @@ class SoraDeviceClient:
         finally:
             os.kill(os.getpid(), signal.SIGUSR1)
 
-def _event_stream_sender(self, itr):
+    def _event_stream_sender(self, itr):
         metadata = [("authorization", "Bearer " + self._device_access_token)]
         try:
             for x in itr:
@@ -121,7 +121,8 @@ def _event_stream_sender(self, itr):
         finally:
             os.kill(os.getpid(), signal.SIGUSR1)
 
-    def add_event(self, event_type, payload={}, device_id=None, lat=None, lon=None):
+    def add_event(self, event_type, payload=None, device_id=None, lat=None, lon=None):
+        payload = payload or {}
         timestamp = Timestamp()
         payload_pb = Struct()
         payload_pb.update(payload)
