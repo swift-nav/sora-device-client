@@ -28,7 +28,7 @@ class SoraDeviceClient:
     def __init__(
         self,
         device_id,
-        device_access_token,
+        access_token,
         host,
         port,
         disable_tls=False,
@@ -37,7 +37,7 @@ class SoraDeviceClient:
     ):
         self._device_id = device_id
         log.info("Device ID: %s", self._device_id)
-        self._device_access_token = device_access_token
+        self._access_token = access_token
         self._host = host
         self._port = port
         self._disable_tls = disable_tls
