@@ -102,9 +102,24 @@ class SoraDeviceClient:
         finally:
             os.kill(os.getpid(), signal.SIGUSR1)
 
-    def _event_stream_sender(self, itr):
-        for x in itr:
-            self._stub.AddEvent(x)
+def _event_stream_sender(self, itr):
+        metadata = [("authorization", "Bearer " + self._device_access_token)]
+        try:
+            for x in itr:
+                self._stub.StreamEvent(x, metadata=metadata)
+        except grpc._channel._InactiveRpcError as e:
+            if e.code() == grpc.StatusCode.UNAVAILABLE:
+                logging.info(
+                    "Server unavaliable so restarting client. This is expected during a a deploy."
+                )
+            else:
+                logging.warn(
+                    f"Could not connect to server for an unexpected reason: {e}"
+                )
+        except Exception as e:
+            logging.warn(f"Unexpected error when streaming event to server: {e}")
+        finally:
+            os.kill(os.getpid(), signal.SIGUSR1)
 
     def add_event(self, event_type, payload={}, device_id=None, lat=None, lon=None):
         timestamp = Timestamp()
@@ -122,7 +137,7 @@ class SoraDeviceClient:
         )
         log.info("Sending event for device %s:", device_id)
         log.debug(event)
-        self._event_queue.put(event)
+        self._event_queue.put(device_pb2.StreamEventRequest(event=event))
 
     def send_state(self, state=None, device_id=None, lat=None, lon=None):
         if state is None:
