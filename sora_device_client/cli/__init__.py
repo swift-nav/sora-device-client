@@ -28,6 +28,8 @@ def setup_logger(verbose=False, debug=False):
 def callback(verbose: bool = False, debug: bool = False):
     """
     Sora Device Client
+
+    Streams Location Data from a location source to the Sora Service
     """
     setup_logger(verbose, debug)
 
