@@ -18,7 +18,7 @@ def logout():
         raise typer.Exit("Device not logged in.")
 
     try:
-        del data["device-id"]
+        del data["device"]
     except tomlkit.container.NonExistentKey:
         pass
 
