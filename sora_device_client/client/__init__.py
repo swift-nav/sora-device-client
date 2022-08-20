@@ -84,10 +84,9 @@ class SoraDeviceClient:
         self._event_worker.start()
 
     def _state_stream_sender(self, itr):
-        metadata = [("authorization", "Bearer " + self._access_token)]
+        metadata = [("authorization", f"Bearer {self._access_token}")]
         try:
-            for x in itr:
-                self._stub.StreamDeviceState(x, metadata=metadata)
+            self._stub.StreamDeviceState(itr, metadata=metadata)
         except grpc._channel._InactiveRpcError as e:
             if e.code() == grpc.StatusCode.UNAVAILABLE:
                 logging.info(
@@ -103,10 +102,9 @@ class SoraDeviceClient:
             os.kill(os.getpid(), signal.SIGUSR1)
 
     def _event_stream_sender(self, itr):
-        metadata = [("authorization", "Bearer " + self._device_access_token)]
+        metadata = [("authorization", f"Bearer {self._access_token}")]
         try:
-            for x in itr:
-                self._stub.StreamEvent(x, metadata=metadata)
+            self._stub.StreamEvent(itr, metadata=metadata)
         except grpc._channel._InactiveRpcError as e:
             if e.code() == grpc.StatusCode.UNAVAILABLE:
                 logging.info(
