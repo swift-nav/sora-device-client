@@ -5,6 +5,7 @@ import queue
 import signal
 import threading
 
+from dataclasses import dataclass
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.struct_pb2 import Struct
 
@@ -27,6 +28,7 @@ class SoraDeviceClient:
     def __init__(
         self,
         device_id,
+        access_token,
         host,
         port,
         disable_tls=False,
@@ -35,6 +37,7 @@ class SoraDeviceClient:
     ):
         self._device_id = device_id
         log.info("Device ID: %s", self._device_id)
+        self._access_token = access_token
         self._host = host
         self._port = port
         self._disable_tls = disable_tls
@@ -81,8 +84,9 @@ class SoraDeviceClient:
         self._event_worker.start()
 
     def _state_stream_sender(self, itr):
+        metadata = [("authorization", f"Bearer {self._access_token}")]
         try:
-            self._stub.StreamDeviceState(itr)
+            self._stub.StreamDeviceState(itr, metadata=metadata)
         except grpc._channel._InactiveRpcError as e:
             if e.code() == grpc.StatusCode.UNAVAILABLE:
                 logging.info(
@@ -98,10 +102,25 @@ class SoraDeviceClient:
             os.kill(os.getpid(), signal.SIGUSR1)
 
     def _event_stream_sender(self, itr):
-        for x in itr:
-            self._stub.AddEvent(x)
+        metadata = [("authorization", f"Bearer {self._access_token}")]
+        try:
+            self._stub.StreamEvent(itr, metadata=metadata)
+        except grpc._channel._InactiveRpcError as e:
+            if e.code() == grpc.StatusCode.UNAVAILABLE:
+                logging.info(
+                    "Server unavaliable so restarting client. This is expected during a a deploy."
+                )
+            else:
+                logging.warn(
+                    f"Could not connect to server for an unexpected reason: {e}"
+                )
+        except Exception as e:
+            logging.warn(f"Unexpected error when streaming event to server: {e}")
+        finally:
+            os.kill(os.getpid(), signal.SIGUSR1)
 
-    def add_event(self, event_type, payload={}, device_id=None, lat=None, lon=None):
+    def add_event(self, event_type, payload=None, device_id=None, lat=None, lon=None):
+        payload = payload or {}
         timestamp = Timestamp()
         payload_pb = Struct()
         payload_pb.update(payload)
@@ -117,7 +136,7 @@ class SoraDeviceClient:
         )
         log.info("Sending event for device %s:", device_id)
         log.debug(event)
-        self._event_queue.put(event)
+        self._event_queue.put(device_pb2.StreamEventRequest(event=event))
 
     def send_state(self, state=None, device_id=None, lat=None, lon=None):
         if state is None:

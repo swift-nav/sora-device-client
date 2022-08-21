@@ -1,0 +1,10 @@
+name: Code Formatting and Linting
+on:
+  push:
+jobs:
+  black:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Black Python
+      uses: psf/black@stable
