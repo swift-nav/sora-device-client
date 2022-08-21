@@ -11,27 +11,11 @@ from ..config import read_data, write_data
 from ..exceptions import DataFileNotFound
 
 
-def login(
-    device_id: Optional[str] = typer.Option(None, help="Device Id to log into Sora as.")
-):
+def login():
     """
-    Log into Sora Server with the provided device id.
+    Log into Sora Server.
 
-    The behaviour depends on two things:
-        1. Is there a data file with a device.id key?
-        2. Has --device-id been specified?
-
-    1 & 2:
-        ignore device-id from data file, print message that device_id is going to be used
-
-    1 & ~2:
-        print message that device_id is going to be used
-
-    ~1 & 2:
-        save device-id to data file
-
-    ~1 & ~2:
-        error
+    If there is already device login details in the data file, login will be skipped.
     """
     try:
         data = read_data()
@@ -39,16 +23,14 @@ def login(
         data = tomlkit.parse("")
 
     try:
-        device_uuid = UUID(data["device"]["id"])
+        device = data["device"]
+        device_uuid = UUID(device["id"])
         print(f"Already logged in as device {device_uuid}.")
         return
     except tomlkit.exceptions.NonExistentKey:
-        if not device_id:
-            client = Auth0Client(AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE)
-            device_uuid, device_access_token = client.register_device()
-            always_merger.merge(data, {"device": {"access_token": device_access_token}})
-        else:
-            device_uuid = UUID(device_id)
+        client = Auth0Client(AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE)
+        device_uuid, device_access_token = client.register_device()
+        always_merger.merge(data, {"device": {"access_token": device_access_token}})
 
     always_merger.merge(data, {"device": {"id": str(device_uuid)}})
 
