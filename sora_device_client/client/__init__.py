@@ -5,6 +5,8 @@ import queue
 import signal
 import threading
 
+from contextlib import contextmanager
+from collections.abc import Generator
 from dataclasses import dataclass
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -21,8 +23,22 @@ class ExitMain(Exception):
     pass
 
 
-def signal_handler(signal, frame):
-    raise ExitMain()
+@contextmanager
+def device_service_channel(
+    host: str, port: int, disable_tls: bool = False
+) -> Generator[grpc.Channel, None, None]:
+    target = f"{host}:{port}"
+    log.info(f"target: {target}")
+    if disable_tls:
+        chan = grpc.insecure_channel(target)
+    else:
+        creds = grpc.ssl_channel_credentials()
+        chan = grpc.secure_channel(target, creds)
+    grpc.channel_ready_future(chan).result(timeout=10)
+    try:
+        yield chan
+    finally:
+        chan.close()
 
 
 @dataclass
