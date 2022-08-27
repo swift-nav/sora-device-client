@@ -24,25 +24,23 @@ def login():
     except DataFileNotFound:
         data = tomlkit.parse("")
 
-    try:
-        device = data["device"]
-        device_uuid = UUID(str(device["id"]))
+    device_id = data.get("device", {}).get("id")
+    if device_id:
+        device_uuid = UUID(str(device_id))
         print(f"Already logged in as device {device_uuid}.")
         return
-    except tomlkit.exceptions.NonExistentKey:
-        config = read_config()
-        server = config["server"]
-        with device_service_channel(
-            server["host"], server["port"], server["disable_tls"]
-        ) as channel:
-            stub = device_grpc.DeviceServiceStub(channel)
-            info = auth0_auth_server_info(stub)
-            client = Auth0Client(info=info)
 
-    device_uuid, device_access_token = client.register_device()
-    always_merger.merge(data, {"device": {"access_token": device_access_token}})
-    always_merger.merge(data, {"device": {"id": str(device_uuid)}})
+    config = read_config()
+    server = config["server"]
+    with device_service_channel(
+        server["host"], server["port"], server.get("disable_tls", False)
+    ) as channel:
+        stub = device_grpc.DeviceServiceStub(channel)
+        info = auth0_auth_server_info(stub)
+        client = Auth0Client(info=info)
+        device_uuid, device_access_token = client.register_device()
+        always_merger.merge(data, {"device": {"access_token": device_access_token}})
+        always_merger.merge(data, {"device": {"id": str(device_uuid)}})
 
     write_data(data)
-
     print(f"Logged in as device {device_uuid}")
