@@ -27,6 +27,10 @@ def read_data() -> tomlkit.TOMLDocument:
         )
 
 
+def delete_data_file():
+    DATA_FILE_PATH.unlink()
+
+
 def write_data(data: tomlkit.TOMLDocument):
     DATA_FILE_PATH.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     with os.fdopen(
