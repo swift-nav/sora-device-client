@@ -16,6 +16,8 @@ import sora.v1beta.common_pb2 as common_pb
 import sora.device.v1beta.service_pb2_grpc as device_grpc
 import sora.device.v1beta.service_pb2 as device_pb2
 
+from sora_device_client.config.server import ServerConfig
+
 log = logging.getLogger(__name__)
 
 
@@ -24,16 +26,12 @@ class ExitMain(Exception):
 
 
 @contextmanager
-def device_service_channel(
-    host: str, port: int, disable_tls: bool = False
-) -> Generator[grpc.Channel, None, None]:
-    target = f"{host}:{port}"
-    log.info(f"target: {target}")
-    if disable_tls:
-        chan = grpc.insecure_channel(target)
+def device_service_channel(cfg: ServerConfig) -> Generator[grpc.Channel, None, None]:
+    if cfg.disable_tls:
+        chan = grpc.insecure_channel(cfg.target())
     else:
         creds = grpc.ssl_channel_credentials()
-        chan = grpc.secure_channel(target, creds)
+        chan = grpc.secure_channel(cfg.target(), creds)
     grpc.channel_ready_future(chan).result(timeout=10)
     try:
         yield chan
