@@ -9,7 +9,7 @@ DEFAULT_PORT = 443
 class ServerConfig:
     def __init__(self, url: str):
         self._parsed_url = urlparse(url)
-        self.host = self._parsed_url.netloc
+        self.host = self._parsed_url.hostname or "localhost"
         self.port = self._parsed_url.port or DEFAULT_PORT
         self.disable_tls = self._parsed_url.scheme != "https"
 
