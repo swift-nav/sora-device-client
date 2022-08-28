@@ -61,7 +61,7 @@ def login(
         always_merger.merge(data, {"device": {"access_token": device_access_token}})
         always_merger.merge(data, {"device": {"id": str(device_uuid)}})
 
-    always_merger.merge(data, {"server": {"url": server_url}})
+    always_merger.merge(data, {"server": {"url": f"{server_config}"}})
 
     write_data(data)
     print(f"Logged in as device {device_uuid}")
