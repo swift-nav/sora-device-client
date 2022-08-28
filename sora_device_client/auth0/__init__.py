@@ -9,6 +9,7 @@ from typing import Tuple, TypedDict
 from uuid import UUID
 
 from . import jwt
+from .info import Auth0AuthServerInfo
 
 AUTH0_DOMAIN = "nepa-test.au.auth0.com"
 AUTH0_CLIENT_ID = "rg4u984ZG8OKaMUL44geh397QpX1ozcr"
@@ -28,22 +29,22 @@ class TokenReponse(TypedDict):
     device_id: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class Auth0Client:
-    host: str
-    client_id: str
-    audience: str
+    info: Auth0AuthServerInfo
 
     def _get_device_code(self) -> DeviceCodeData:
         payload = {
-            "audience": self.audience,
-            "client_id": self.client_id,
+            "audience": self.info.audience,
+            "client_id": self.info.client_id,
             "scope": "",  # NOTE: scopes are space delimited
         }
         headers = {
             "content-type": "application/x-www-form-urlencoded",
         }
-        r = requests.post(f"https://{self.host}/oauth/device/code", payload, headers)
+        r = requests.post(
+            f"https://{self.info.host}/oauth/device/code", payload, headers
+        )
         if r.status_code != HTTPStatus.OK:
             raise Exception(f"Failed to get device code: {r.status_code}")
 
@@ -54,13 +55,13 @@ class Auth0Client:
         payload = {
             "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
             "device_code": device_code,
-            "client_id": self.client_id,
+            "client_id": self.info.client_id,
         }
         headers = {
             "content-type": "application/x-www-form-urlencoded",
         }
         while True:
-            r = requests.post(f"https://{self.host}/oauth/token", payload, headers)
+            r = requests.post(f"https://{self.info.host}/oauth/token", payload, headers)
             if r.status_code != HTTPStatus.OK:
                 error = r.json()["error"]
                 if error == "slow_down":

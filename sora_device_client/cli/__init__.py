@@ -1,14 +1,9 @@
 import logging
-import os
-import pathlib
-import tomlkit
 import typer
-
 
 from rich.logging import RichHandler
 
 from . import login, logout, start
-from ..exceptions import DataFileNotFound
 
 log = logging.getLogger(__name__)
 app = typer.Typer()

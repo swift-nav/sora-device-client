@@ -1,4 +1,4 @@
-SORA_API_REF := 3674176de04d453b9d89dab9e316232a
+SORA_API_REF := 72a98b24d4a63cf029ab039ddb1e961a04211c75
 
 # If the first argument is "run"...
 ifeq (run,$(firstword $(MAKECMDGOALS)))

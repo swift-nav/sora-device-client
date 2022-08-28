@@ -5,13 +5,18 @@ import queue
 import signal
 import threading
 
+from contextlib import contextmanager
+from collections.abc import Generator
 from dataclasses import dataclass
-from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.struct_pb2 import Struct
+from google.protobuf.timestamp_pb2 import Timestamp
+from uuid import UUID
 
 import sora.v1beta.common_pb2 as common_pb
 import sora.device.v1beta.service_pb2_grpc as device_grpc
 import sora.device.v1beta.service_pb2 as device_pb2
+
+from sora_device_client.config.server import ServerConfig
 
 log = logging.getLogger(__name__)
 
@@ -20,29 +25,34 @@ class ExitMain(Exception):
     pass
 
 
-def signal_handler(signal, frame):
-    raise ExitMain()
+@contextmanager
+def device_service_channel(cfg: ServerConfig) -> Generator[grpc.Channel, None, None]:
+    if cfg.disable_tls:
+        chan = grpc.insecure_channel(cfg.target())
+    else:
+        creds = grpc.ssl_channel_credentials()
+        chan = grpc.secure_channel(cfg.target(), creds)
+    grpc.channel_ready_future(chan).result(timeout=10)
+    try:
+        yield chan
+    finally:
+        chan.close()
 
 
+@dataclass
 class SoraDeviceClient:
-    def __init__(
-        self,
-        device_id,
-        access_token,
-        host,
-        port,
-        disable_tls=False,
-        state_queue_depth=0,
-        event_queue_depth=0,
-    ):
-        self._device_id = device_id
-        log.info("Device ID: %s", self._device_id)
-        self._access_token = access_token
-        self._host = host
-        self._port = port
-        self._disable_tls = disable_tls
-        self._state_queue = queue.Queue(maxsize=state_queue_depth)
-        self._event_queue = queue.Queue(maxsize=event_queue_depth)
+    device_uuid: UUID
+    access_token: str
+    host: str
+    port: int
+    disable_tls: bool = False
+    state_queue_depth: int = 0
+    event_queue_depth: int = 0
+
+    def __post_init__(self):
+        self.device_id = str(self.device_uuid)
+        self._state_queue = queue.Queue(maxsize=self.state_queue_depth)
+        self._event_queue = queue.Queue(maxsize=self.event_queue_depth)
         self._state_worker = threading.Thread(
             target=self._state_stream_sender,
             args=(iter(self._state_queue.get, None),),
@@ -57,10 +67,10 @@ class SoraDeviceClient:
         self._stub = None
 
     def connect(self):
-        target = self._host + ":" + str(self._port)
+        target = f"{self.host}:{self.port}"
         log.info("Connecting to Sora server @ %s", target)
 
-        if self._disable_tls:
+        if self.disable_tls:
             self._chan = grpc.insecure_channel(target)
         else:
             creds = grpc.ssl_channel_credentials()
@@ -78,13 +88,20 @@ class SoraDeviceClient:
             raise
 
     def start(self):
+        def signal_handler(signal, frame):
+            """
+            Ignore the signal and frame and just exit the process.
+            It is expected that the process will be restarted by a external orchestration system.
+            """
+            raise ExitMain()
+
         signal.signal(signal.SIGUSR1, signal_handler)
         self.connect()
         self._state_worker.start()
         self._event_worker.start()
 
     def _state_stream_sender(self, itr):
-        metadata = [("authorization", f"Bearer {self._access_token}")]
+        metadata = [("authorization", f"Bearer {self.access_token}")]
         try:
             self._stub.StreamDeviceState(itr, metadata=metadata)
         except grpc._channel._InactiveRpcError as e:
@@ -102,7 +119,7 @@ class SoraDeviceClient:
             os.kill(os.getpid(), signal.SIGUSR1)
 
     def _event_stream_sender(self, itr):
-        metadata = [("authorization", f"Bearer {self._access_token}")]
+        metadata = [("authorization", f"Bearer {self.access_token}")]
         try:
             self._stub.StreamEvent(itr, metadata=metadata)
         except grpc._channel._InactiveRpcError as e:
@@ -119,36 +136,32 @@ class SoraDeviceClient:
         finally:
             os.kill(os.getpid(), signal.SIGUSR1)
 
-    def add_event(self, event_type, payload=None, device_id=None, lat=None, lon=None):
+    def add_event(self, event_type, payload=None, lat=None, lon=None):
         payload = payload or {}
         timestamp = Timestamp()
         payload_pb = Struct()
         payload_pb.update(payload)
         timestamp.GetCurrentTime()
-        if device_id is None:
-            device_id = self._device_id
         event = common_pb.Event(
-            device_id=str(device_id),
+            device_id=str(self.device_id),
             time=timestamp,
             pos=common_pb.Position(lat=lat, lon=lon),
             type=event_type,
             payload=payload_pb,
         )
-        log.info("Sending event for device %s:", device_id)
+        log.info("Sending event for device %s:", self.device_id)
         log.debug(event)
         self._event_queue.put(device_pb2.StreamEventRequest(event=event))
 
-    def send_state(self, state=None, device_id=None, lat=None, lon=None):
+    def send_state(self, state=None, lat=None, lon=None):
         if state is None:
             state = {}
         timestamp = Timestamp()
         state_pb = Struct()
         state_pb.update(state)
         timestamp.GetCurrentTime()
-        if device_id is None:
-            device_id = self._device_id
         device_state = common_pb.DeviceState(
-            device_id=str(device_id),
+            device_id=str(self.device_id),
             time=timestamp,
             orientation=common_pb.Orientation(
                 pitch=0,
@@ -158,6 +171,6 @@ class SoraDeviceClient:
             pos=common_pb.Position(lat=lat, lon=lon),
             user_data=state_pb,
         )
-        log.info("Sending state for device %s:", device_id)
+        log.info("Sending state for device %s:", self.device_id)
         log.debug(device_state)
         self._state_queue.put(device_pb2.StreamDeviceStateRequest(state=device_state))
