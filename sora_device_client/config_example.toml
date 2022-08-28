@@ -63,17 +63,3 @@ orientation = false
 # port = 55555
 # [location.format.sbp]
 # orientation = true
-
-# ==============================================================================
-# Sora server configuration
-
-[server]
-host = "grpc.staging.sora.swiftnav.com"
-port =  443
-
-# host = "grpc.dev.sora.swiftnav.com"
-# port = 443
-#
-# host = "localhost"
-# port = 10000
-# disable_tls = true

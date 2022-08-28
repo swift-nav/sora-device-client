@@ -44,7 +44,7 @@ class SoraDeviceClient:
     device_uuid: UUID
     access_token: str
     host: str
-    port: str
+    port: int
     disable_tls: bool = False
     state_queue_depth: int = 0
     event_queue_depth: int = 0
