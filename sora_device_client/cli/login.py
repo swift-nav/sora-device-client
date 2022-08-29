@@ -37,8 +37,6 @@ def login(
     except DataFileNotFound:
         data = tomlkit.parse("")
 
-    print(f"Server url = {server_url}")
-
     # server_url order of preference:
     # 1. Command line
     # 2. Data file
