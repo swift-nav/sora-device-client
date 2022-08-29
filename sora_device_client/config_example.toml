@@ -18,7 +18,7 @@ host = "localhost"
 port = 55555
 
 # # Serial port driver
-# [driver.serial]
+# [location.driver.serial]
 # port = "/dev/ttyUSB0"
 # baud = 115200
 
