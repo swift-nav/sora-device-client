@@ -27,9 +27,7 @@ def start():
     client = SoraDeviceClient(
         device_uuid=UUID(data["device"]["id"]),
         access_token=data["device"]["access_token"],
-        host=server_config.host,
-        port=server_config.port,
-        disable_tls=server_config.disable_tls,
+        server_config=server_config,
     )
 
     client.start()
@@ -51,7 +49,8 @@ def start():
                                 lon=loc.position.lon,
                             )
                 except KeyboardInterrupt:
-                    pass
+                    print("Terminating state stream.")
+                    raise typer.Exit(code=0)
     except ConfigValueError as e:
         print(e)
         raise typer.Exit(code=1)

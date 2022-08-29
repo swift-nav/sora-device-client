@@ -43,9 +43,7 @@ def device_service_channel(cfg: ServerConfig) -> Generator[grpc.Channel, None, N
 class SoraDeviceClient:
     device_uuid: UUID
     access_token: str
-    host: str
-    port: int
-    disable_tls: bool = False
+    server_config: ServerConfig
     state_queue_depth: int = 0
     event_queue_depth: int = 0
 
@@ -67,10 +65,10 @@ class SoraDeviceClient:
         self._stub = None
 
     def connect(self):
-        target = f"{self.host}:{self.port}"
-        log.info("Connecting to Sora server @ %s", target)
+        target = self.server_config.target()
+        log.info(f"Connecting to Sora server @ {target}")
 
-        if self.disable_tls:
+        if self.server_config.disable_tls:
             self._chan = grpc.insecure_channel(target)
         else:
             creds = grpc.ssl_channel_credentials()
@@ -120,21 +118,11 @@ class SoraDeviceClient:
 
     def _event_stream_sender(self, itr):
         metadata = [("authorization", f"Bearer {self.access_token}")]
-        try:
-            self._stub.StreamEvent(itr, metadata=metadata)
-        except grpc._channel._InactiveRpcError as e:
-            if e.code() == grpc.StatusCode.UNAVAILABLE:
-                logging.info(
-                    "Server unavaliable so restarting client. This is expected during a a deploy."
-                )
-            else:
-                logging.warn(
-                    f"Could not connect to server for an unexpected reason: {e}"
-                )
-        except Exception as e:
-            logging.warn(f"Unexpected error when streaming event to server: {e}")
-        finally:
-            os.kill(os.getpid(), signal.SIGUSR1)
+        for x in itr:
+            try:
+                self._stub.AddEvent(x, metadata=metadata)
+            except Exception as e:
+                logging.warn(f"Unexpected error when streaming event to server: {e}")
 
     def add_event(self, event_type, payload=None, lat=None, lon=None):
         payload = payload or {}
@@ -154,11 +142,9 @@ class SoraDeviceClient:
         self._event_queue.put(device_pb2.StreamEventRequest(event=event))
 
     def send_state(self, state=None, lat=None, lon=None):
-        if state is None:
-            state = {}
         timestamp = Timestamp()
         state_pb = Struct()
-        state_pb.update(state)
+        state_pb.update(state or {})
         timestamp.GetCurrentTime()
         device_state = common_pb.DeviceState(
             device_id=str(self.device_id),

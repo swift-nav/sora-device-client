@@ -49,7 +49,9 @@ def login(
     device_id = data.get("device", {}).get("id")
     if device_id:
         device_uuid = UUID(str(device_id))
-        print(f"Already logged in as device {device_uuid}.")
+        print(
+            f"Already logged in as device {device_uuid}. To register the device again run `sora logout` and `sora login` again."
+        )
         return
 
     with device_service_channel(server_config) as channel:
