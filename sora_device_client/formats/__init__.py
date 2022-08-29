@@ -21,7 +21,7 @@ FORMATS = {
 
 
 def format_from_config(config, driver):
-    formats_cfg = config["format"].get()
+    formats_cfg = config["format"]
     if len(formats_cfg) != 1:
         raise ConfigValueError("Exactly one format should be specified")
 
