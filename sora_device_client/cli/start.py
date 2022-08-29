@@ -49,7 +49,8 @@ def start():
                                 lon=loc.position.lon,
                             )
                 except KeyboardInterrupt:
-                    pass
+                    print("Terminating state stream.")
+                    raise typer.Exit(code=0)
     except ConfigValueError as e:
         print(e)
         raise typer.Exit(code=1)
