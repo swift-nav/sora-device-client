@@ -43,9 +43,7 @@ def device_service_channel(cfg: ServerConfig) -> Generator[grpc.Channel, None, N
 class SoraDeviceClient:
     device_uuid: UUID
     access_token: str
-    host: str
-    port: int
-    disable_tls: bool = False
+    server_config: ServerConfig
     state_queue_depth: int = 0
     event_queue_depth: int = 0
 
@@ -67,10 +65,10 @@ class SoraDeviceClient:
         self._stub = None
 
     def connect(self):
-        target = f"{self.host}:{self.port}"
-        log.info("Connecting to Sora server @ %s", target)
+        target = self.server_config.target()
+        log.info(f"Connecting to Sora server @ {target}")
 
-        if self.disable_tls:
+        if self.server_config.disable_tls:
             self._chan = grpc.insecure_channel(target)
         else:
             creds = grpc.ssl_channel_credentials()
