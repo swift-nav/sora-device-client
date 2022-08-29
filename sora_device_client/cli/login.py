@@ -25,8 +25,7 @@ def login(
         """,
     ),
 ):
-
-    f"""
+    """
     Log into Sora Server.
 
     If there is already device login details in the data file,
