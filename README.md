@@ -10,7 +10,7 @@ Sora Device Client
 * [Command-Line Client](#command-line-client)
   * [Configuration](#configuration)
     * [Configuration file](#configuration-file)
-    * [Command-line argument](#command-line-argument)
+  * [Running](#running)
 
 <!-- vim-markdown-toc -->
 
@@ -85,9 +85,12 @@ cp sora_device_client/config_example.toml ~/.config/sora-device-client
 ```
 You will most likely have to edit the `driver` section to work with the location source for your system.
 
-### Command-line argument
-
-For documentation on the available command-line arguments, run
+## Running
+To run the command-line client, launch a shell from poetry:
 ```bash
-poetry run sora --help
+poetry shell
+```
+In the new shell, the `sora` command will be in the path:
+```bash
+sora --help
 ```
