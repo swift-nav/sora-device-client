@@ -28,7 +28,7 @@ def read_data() -> tomlkit.TOMLDocument:
 
 
 def delete_data_file():
-    DATA_FILE_PATH.unlink()
+    DATA_FILE_PATH.unlink(missing_ok=True)
 
 
 def write_data(data: tomlkit.TOMLDocument):
