@@ -58,11 +58,20 @@ def login(
         stub = device_grpc.DeviceServiceStub(channel)
         info = auth0_auth_server_info(stub)
         client = Auth0Client(info=info)
-        device_uuid, device_access_token = client.register_device()
-        always_merger.merge(data, {"device": {"access_token": device_access_token}})
-        always_merger.merge(data, {"device": {"id": str(device_uuid)}})
+        registration = client.register_device()
+        device_uuid = registration.device_id
+        always_merger.merge(
+            data,
+            {
+                "device": {
+                    "access_token": registration.access_token,
+                    "id": str(registration.device_id),
+                    "project_id": str(registration.project_id),
+                },
+            },
+        )
 
     always_merger.merge(data, {"server": {"url": f"{server_config}"}})
 
     write_data(data)
-    print(f"Logged in as device {device_uuid}")
+    print(f"Logged in as device {device_uuid}. ")

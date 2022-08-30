@@ -1,11 +1,18 @@
 import json
 
 from base64 import b64decode
-from typing import Tuple
+from dataclasses import dataclass
 from uuid import UUID
 
 
-def extract_device_id_and_access_token(jwt: str) -> Tuple[UUID, str]:
+@dataclass(frozen=True)
+class ExtractedData:
+    access_token: str
+    device_id: UUID
+    project_id: UUID
+
+
+def extract_device_id_and_access_token(jwt: str) -> ExtractedData:
     """
     Given a JWT from the Auth Server that is issued to this device as part of a
     Device Authorization Flow, this function will extract the claim
@@ -19,7 +26,12 @@ def extract_device_id_and_access_token(jwt: str) -> Tuple[UUID, str]:
     `device_access_token` so it must not be modifed when sent to the backend.
     """
     device_access_token = extract_claims(jwt)["device_access_token"]
-    return extract_claims(device_access_token)["device_id"], device_access_token
+    device_id = extract_claims(device_access_token)["device_id"]
+    project_id = extract_claims(device_access_token)["sub"]
+
+    return ExtractedData(
+        access_token=device_access_token, device_id=device_id, project_id=project_id
+    )
 
 
 def extract_claims(jwt: str) -> dict:

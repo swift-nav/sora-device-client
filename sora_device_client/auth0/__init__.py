@@ -5,8 +5,7 @@ from dataclasses import dataclass
 from http import HTTPStatus
 from rich import print
 from rich.console import Console
-from typing import Tuple, TypedDict
-from uuid import UUID
+from typing import TypedDict
 
 from . import jwt
 from .info import Auth0AuthServerInfo
@@ -26,7 +25,6 @@ class DeviceCodeData(TypedDict):
 
 class TokenReponse(TypedDict):
     access_token: str
-    device_id: str
 
 
 @dataclass(frozen=True)
@@ -76,7 +74,7 @@ class Auth0Client:
 
             return r.json()
 
-    def register_device(self) -> Tuple[UUID, str]:
+    def register_device(self) -> jwt.ExtractedData:
         device_code_data = self._get_device_code()
         print(f"Continue login at: {device_code_data['verification_uri_complete']}")
         print(f"and verify that the code matches {device_code_data['user_code']}")
@@ -88,8 +86,5 @@ class Auth0Client:
         )
 
         access_token = token_data["access_token"]
-        device_id, device_access_token = jwt.extract_device_id_and_access_token(
-            access_token
-        )
 
-        return (device_id, device_access_token)
+        return jwt.extract_device_id_and_access_token(access_token)
