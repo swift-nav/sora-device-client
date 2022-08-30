@@ -42,6 +42,7 @@ def device_service_channel(cfg: ServerConfig) -> Generator[grpc.Channel, None, N
 @dataclass
 class SoraDeviceClient:
     device_uuid: UUID
+    project_uuid: UUID
     access_token: str
     server_config: ServerConfig
     state_queue_depth: int = 0
@@ -49,6 +50,7 @@ class SoraDeviceClient:
 
     def __post_init__(self):
         self.device_id = str(self.device_uuid)
+        self.project_id = str(self.project_uuid)
         self._state_queue = queue.Queue(maxsize=self.state_queue_depth)
         self._event_queue = queue.Queue(maxsize=self.event_queue_depth)
         self._state_worker = threading.Thread(
@@ -79,10 +81,10 @@ class SoraDeviceClient:
             self._stub = device_grpc.DeviceServiceStub(self._chan)
             log.info("Connected")
         except:
-            log.info("Disconnected")
             self._chan.close()
             self._chan = None
             self._stub = None
+            log.info("Disconnected")
             raise
 
     def start(self):
@@ -97,6 +99,10 @@ class SoraDeviceClient:
         self.connect()
         self._state_worker.start()
         self._event_worker.start()
+        print(f"Sending state as device {self.device_id} to project {self.project_id}.")
+        print(
+            f"Navigate to https://staging.sora.swiftnav.com/projects/{self.project_id}/dashboard to view location data on a map."
+        )
 
     def _state_stream_sender(self, itr):
         metadata = [("authorization", f"Bearer {self.access_token}")]

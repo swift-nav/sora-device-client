@@ -26,6 +26,7 @@ def start():
 
     client = SoraDeviceClient(
         device_uuid=UUID(data["device"]["id"]),
+        project_uuid=UUID(data["device"]["project_id"]),
         access_token=data["device"]["access_token"],
         server_config=server_config,
     )
