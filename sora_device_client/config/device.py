@@ -1,21 +1,44 @@
 import json
 
+from functools import cached_property
 from base64 import b64decode
 from dataclasses import dataclass
 from uuid import UUID
 
 
 @dataclass(frozen=True)
-class ExtractedData:
+class DeviceConfig:
     access_token: str
-    app_url: str
-    device_id: UUID
-    device_name: str
-    project_id: UUID
-    project_name: str
+
+    @cached_property
+    def _extracted_claims(self) -> dict:
+        dat = self.access_token
+        return extract_claims(dat)
+
+    @cached_property
+    def app_url(self) -> str:
+        return self._extracted_claims["app_url"]
+
+    @cached_property
+    def device_id(self) -> UUID:
+        return UUID(self._extracted_claims["device_id"])
+
+    @cached_property
+    def device_name(self) -> str:
+        return self._extracted_claims["device_name"]
+
+    @cached_property
+    def project_id(self) -> UUID:
+        # This is a quirk. I was searching for something to put in the `sub`
+        # field, and this seemed the most obvious choice. It is not set in stone
+        return UUID(self._extracted_claims["sub"])
+
+    @cached_property
+    def project_name(self) -> str:
+        return self._extracted_claims["project_name"]
 
 
-def extract_data_from_token(jwt: str) -> ExtractedData:
+def extract_claims(jwt: str) -> dict:
     """
     Given a JWT from the Auth Server that is issued to this device as part of a
     Device Authorization Flow, this function will extract the claim
@@ -29,24 +52,6 @@ def extract_data_from_token(jwt: str) -> ExtractedData:
     signature of `device_access_token` so it must not be modifed when sent
     to the backend.
     """
-    device_access_token = extract_claims(jwt)["device_access_token"]
-    app_url = extract_claims(device_access_token)["app_url"]
-    device_id = extract_claims(device_access_token)["device_id"]
-    device_name = extract_claims(device_access_token)["device_name"]
-    project_id = extract_claims(device_access_token)["sub"]
-    project_name = extract_claims(device_access_token)["project_name"]
-
-    return ExtractedData(
-        access_token=device_access_token,
-        app_url=app_url,
-        device_id=device_id,
-        device_name=device_name,
-        project_id=project_id,
-        project_name=project_name,
-    )
-
-
-def extract_claims(jwt: str) -> dict:
     payload = jwt.split(".")[1]
     padded = pad_to_multiple_of(4, "=", payload)
     decoded = b64decode(padded)

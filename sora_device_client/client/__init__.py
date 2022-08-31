@@ -11,12 +11,12 @@ from dataclasses import dataclass
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.timestamp_pb2 import Timestamp
 from rich import print
-from uuid import UUID
 
 import sora.v1beta.common_pb2 as common_pb
 import sora.device.v1beta.service_pb2_grpc as device_grpc
 import sora.device.v1beta.service_pb2 as device_pb2
 
+from sora_device_client.config.device import DeviceConfig
 from sora_device_client.config.server import ServerConfig
 
 log = logging.getLogger(__name__)
@@ -42,18 +42,15 @@ def device_service_channel(cfg: ServerConfig) -> Generator[grpc.Channel, None, N
 
 @dataclass
 class SoraDeviceClient:
-    device_uuid: UUID
-    project_uuid: UUID
-    access_token: str
+    device_config: DeviceConfig
     server_config: ServerConfig
     state_queue_depth: int = 0
     event_queue_depth: int = 0
 
     def __post_init__(self):
-        self.device_id = str(self.device_uuid)
-        self.project_id = str(self.project_uuid)
         self._state_queue = queue.Queue(maxsize=self.state_queue_depth)
         self._event_queue = queue.Queue(maxsize=self.event_queue_depth)
+        self.metadata = [("authorization", f"Bearer {self.device_config.access_token}")]
         self._state_worker = threading.Thread(
             target=self._state_stream_sender,
             args=(iter(self._state_queue.get, None),),
@@ -100,15 +97,16 @@ class SoraDeviceClient:
         self.connect()
         self._state_worker.start()
         self._event_worker.start()
-        print(f"Sending state as device {self.device_id} to project {self.project_id}.")
         print(
-            f"Navigate to https://staging.sora.swiftnav.com/projects/{self.project_id}/dashboard to view location data on a map."
+            f"Sending state as device {self.device_config.device_name} to project {self.device_config.project_name}."
+        )
+        print(
+            f"Navigate to https://staging.sora.swiftnav.com/projects/{self.device_config.project_id}/dashboard to view location data on a map."
         )
 
     def _state_stream_sender(self, itr):
-        metadata = [("authorization", f"Bearer {self.access_token}")]
         try:
-            self._stub.StreamDeviceState(itr, metadata=metadata)
+            self._stub.StreamDeviceState(itr, metadata=self.metadata)
         except grpc._channel._InactiveRpcError as e:
             if e.code() == grpc.StatusCode.UNAVAILABLE:
                 logging.info(
@@ -124,10 +122,9 @@ class SoraDeviceClient:
             os.kill(os.getpid(), signal.SIGUSR1)
 
     def _event_stream_sender(self, itr):
-        metadata = [("authorization", f"Bearer {self.access_token}")]
         for x in itr:
             try:
-                self._stub.AddEvent(x, metadata=metadata)
+                self._stub.AddEvent(x, metadata=self.metadata)
             except Exception as e:
                 logging.warn(f"Unexpected error when streaming event to server: {e}")
 
@@ -138,13 +135,13 @@ class SoraDeviceClient:
         payload_pb.update(payload)
         timestamp.GetCurrentTime()
         event = common_pb.Event(
-            device_id=str(self.device_id),
+            device_id=str(self.device_config.device_id),
             time=timestamp,
             pos=common_pb.Position(lat=lat, lon=lon),
             type=event_type,
             payload=payload_pb,
         )
-        log.info("Sending event for device %s:", self.device_id)
+        log.info("Sending event for device %s:", self.device_config.device_id)
         log.debug(event)
         self._event_queue.put(device_pb2.StreamEventRequest(event=event))
 
@@ -154,7 +151,7 @@ class SoraDeviceClient:
         state_pb.update(state or {})
         timestamp.GetCurrentTime()
         device_state = common_pb.DeviceState(
-            device_id=str(self.device_id),
+            device_id=str(self.device_config.device_id),
             time=timestamp,
             orientation=common_pb.Orientation(
                 pitch=0,
@@ -164,6 +161,6 @@ class SoraDeviceClient:
             pos=common_pb.Position(lat=lat, lon=lon),
             user_data=state_pb,
         )
-        log.info("Sending state for device %s:", self.device_id)
+        log.info("Sending state for device %s:", self.device_config.device_id)
         log.debug(device_state)
         self._state_queue.put(device_pb2.StreamDeviceStateRequest(state=device_state))

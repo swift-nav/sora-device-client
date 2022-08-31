@@ -6,8 +6,8 @@ from http import HTTPStatus
 from rich import print
 from typing import TypedDict
 
-from . import jwt
-from .info import Auth0AuthServerInfo
+from sora_device_client.auth0.info import Auth0AuthServerInfo
+from sora_device_client.config.device import DeviceConfig, extract_claims
 
 
 class DeviceCodeResponse(TypedDict):
@@ -79,7 +79,7 @@ class Auth0Client:
         raise Exception("Took too long to authenticate in the browser")
 
     # See https://auth0.com/docs/get-started/authentication-and-authorization-flow/call-your-api-using-the-device-authorization-flow
-    def register_device(self) -> jwt.ExtractedData:
+    def register_device(self) -> DeviceConfig:
         device_code_data = self._get_device_code()
         print(
             f"Continue login at: {device_code_data['verification_uri_complete']} and verify that the code matches {device_code_data['user_code']}"
@@ -90,6 +90,8 @@ class Auth0Client:
             device_code_data["expires_in"],
         )
 
-        access_token = token_data["access_token"]
+        device_access_token = extract_claims(token_data["access_token"])[
+            "device_access_token"
+        ]
 
-        return jwt.extract_data_from_token(access_token)
+        return DeviceConfig(device_access_token)
