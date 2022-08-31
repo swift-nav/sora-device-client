@@ -9,7 +9,9 @@ from uuid import UUID
 class ExtractedData:
     access_token: str
     device_id: UUID
+    device_name: str
     project_id: UUID
+    project_name: str
 
 
 def extract_data_from_token(jwt: str) -> ExtractedData:
@@ -28,10 +30,16 @@ def extract_data_from_token(jwt: str) -> ExtractedData:
     """
     device_access_token = extract_claims(jwt)["device_access_token"]
     device_id = extract_claims(device_access_token)["device_id"]
+    device_name = extract_claims(device_access_token)["device_name"]
     project_id = extract_claims(device_access_token)["sub"]
+    project_name = extract_claims(device_access_token)["project_name"]
 
     return ExtractedData(
-        access_token=device_access_token, device_id=device_id, project_id=project_id
+        access_token=device_access_token,
+        device_id=device_id,
+        device_name=device_name,
+        project_id=project_id,
+        project_name=project_name,
     )
 
 
