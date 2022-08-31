@@ -5,11 +5,12 @@ import queue
 import signal
 import threading
 
-from contextlib import contextmanager
 from collections.abc import Generator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.timestamp_pb2 import Timestamp
+from rich import print
 from uuid import UUID
 
 import sora.v1beta.common_pb2 as common_pb
