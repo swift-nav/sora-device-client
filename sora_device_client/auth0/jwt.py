@@ -12,7 +12,7 @@ class ExtractedData:
     project_id: UUID
 
 
-def extract_device_id_and_access_token(jwt: str) -> ExtractedData:
+def extract_data_from_token(jwt: str) -> ExtractedData:
     """
     Given a JWT from the Auth Server that is issued to this device as part of a
     Device Authorization Flow, this function will extract the claim
