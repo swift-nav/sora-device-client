@@ -1,12 +1,11 @@
 import typer
 
 from rich import print
-from uuid import UUID
 
+from sora_device_client.config import read_config, read_data
+from sora_device_client.config.device import DeviceConfig
 from sora_device_client.config.server import ServerConfig
-
-from ..config import read_config, read_data
-from ..exceptions import ConfigValueError, DataFileNotFound
+from sora_device_client.exceptions import ConfigValueError, DataFileNotFound
 
 
 def start():
@@ -22,11 +21,11 @@ def start():
 
     from ..client import SoraDeviceClient
 
+    device_config = DeviceConfig(data["device"]["access_token"])
     server_config = ServerConfig(data["server"]["url"])
 
     client = SoraDeviceClient(
-        device_uuid=UUID(data["device"]["id"]),
-        access_token=data["device"]["access_token"],
+        device_config=device_config,
         server_config=server_config,
     )
 
