@@ -8,6 +8,7 @@ from uuid import UUID
 @dataclass(frozen=True)
 class ExtractedData:
     access_token: str
+    app_url: str
     device_id: UUID
     device_name: str
     project_id: UUID
@@ -29,6 +30,7 @@ def extract_data_from_token(jwt: str) -> ExtractedData:
     to the backend.
     """
     device_access_token = extract_claims(jwt)["device_access_token"]
+    app_url = extract_claims(device_access_token)["app_url"]
     device_id = extract_claims(device_access_token)["device_id"]
     device_name = extract_claims(device_access_token)["device_name"]
     project_id = extract_claims(device_access_token)["sub"]
@@ -36,6 +38,7 @@ def extract_data_from_token(jwt: str) -> ExtractedData:
 
     return ExtractedData(
         access_token=device_access_token,
+        app_url=app_url,
         device_id=device_id,
         device_name=device_name,
         project_id=project_id,
