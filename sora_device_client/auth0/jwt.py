@@ -20,10 +20,11 @@ def extract_data_from_token(jwt: str) -> ExtractedData:
     backend. This function will also extract the `device_id` from
     `device_access_token`.
 
-    Warning: this does not verify either JWT in any way. There is NO checking of
-    the signature. This JWT should have been received from the Auth Server on
-    a secure channel. The backend will verify the signature of
-    `device_access_token` so it must not be modifed when sent to the backend.
+    Warning: this does not verify either JWT in any way. That is the
+    responsibility of the sora backend. This JWT should have been received
+    from the Auth Server on a secure channel. The backend will verify the
+    signature of `device_access_token` so it must not be modifed when sent
+    to the backend.
     """
     device_access_token = extract_claims(jwt)["device_access_token"]
     device_id = extract_claims(device_access_token)["device_id"]
