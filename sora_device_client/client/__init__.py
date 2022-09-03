@@ -97,12 +97,8 @@ class SoraDeviceClient:
         self.connect()
         self._state_worker.start()
         self._event_worker.start()
-        print(
-            f"Sending state as device {self.device_config.device_name} to project {self.device_config.project_name}."
-        )
-        print(
-            f"Navigate to https://staging.sora.swiftnav.com/projects/{self.device_config.project_id}/dashboard to view location data on a map."
-        )
+        print(f"Sending state as device {self.device_config.device_name} to project.")
+        # TODO: print urls of all projects the device is sending state to
 
     def _state_stream_sender(self, itr):
         try:

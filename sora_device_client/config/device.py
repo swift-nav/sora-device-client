@@ -27,16 +27,6 @@ class DeviceConfig:
     def device_name(self) -> str:
         return self._extracted_claims["device_name"]
 
-    @cached_property
-    def project_id(self) -> UUID:
-        # This is a quirk. I was searching for something to put in the `sub`
-        # field, and this seemed the most obvious choice. It is not set in stone
-        return UUID(self._extracted_claims["sub"])
-
-    @cached_property
-    def project_name(self) -> str:
-        return self._extracted_claims["project_name"]
-
 
 def extract_claims(jwt: str) -> dict:
     """
