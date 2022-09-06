@@ -147,6 +147,7 @@ class SoraDeviceClient:
         state_pb.update(state or {})
         timestamp.GetCurrentTime()
         device_state = common_pb.DeviceState(
+            # Note: this will be replaced the by the device_id claimed the JWT
             device_id=str(self.device_config.device_id),
             time=timestamp,
             orientation=common_pb.Orientation(
