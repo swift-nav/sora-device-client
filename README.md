@@ -78,7 +78,7 @@ cp sora_device_client/config_example.toml ~/.config/sora-device-client/config.to
 | OS                    | Path                                                                                               |
 |-----------------------|----------------------------------------------------------------------------------------------------|
 | MacOS:                | `~/Library/Preferences/sora-device-client`                                                         |
-| Other Unix:           | `~/.config/sora-device-client`     # or in `$XDG_CONFIG_HOME/sora-device-client`, if defined       |
+| Other Unix:           | `~/.config/sora-device-client` or `$XDG_CONFIG_HOME/sora-device-client`, if defined                |
 | Win XP (not roaming): | `C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client`                |
 | Win XP (roaming):     | `C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client` |
 | Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`                                    |
@@ -105,7 +105,7 @@ If you need to manually remove it, its location typically is:
 | OS                    | Path                                                                                               |
 |-----------------------|----------------------------------------------------------------------------------------------------|
 | MacOS:                | `~/Library/Application Support/sora-device-client`                                                 |
-| Other Unix:           | `~/.local/share/sora-device-client`    # or in `$XDG_DATA_HOME/sora-device-client`, if defined     |
+| Other Unix:           | `~/.local/share/sora-device-client` or `$XDG_DATA_HOME/sora-device-client`, if defined             |
 | Win XP (not roaming): | `C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client`                |
 | Win XP (roaming):     | `C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client` |
 | Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`                                    |
