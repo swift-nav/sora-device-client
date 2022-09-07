@@ -44,7 +44,7 @@ class SoraDeviceClient:
     server_config: ServerConfig
     state_queue_depth: int = 0
     event_queue_depth: int = 0
-    log: Logger = getLogger(__name__)
+    logger: Logger = getLogger(__name__)
 
     def __post_init__(self):
         self._state_queue = queue.Queue(maxsize=self.state_queue_depth)
@@ -65,7 +65,7 @@ class SoraDeviceClient:
 
     def connect(self):
         target = self.server_config.target()
-        self.log.info(f"Connecting to Sora server @ {target}")
+        self.logger.info(f"Connecting to Sora server @ {target}")
 
         if self.server_config.disable_tls:
             self._chan = grpc.insecure_channel(target)
@@ -76,12 +76,12 @@ class SoraDeviceClient:
         try:
             grpc.channel_ready_future(self._chan).result(timeout=10)
             self._stub = device_grpc.DeviceServiceStub(self._chan)
-            self.log.info("Connected")
+            self.logger.info("Connected")
         except:
             self._chan.close()
             self._chan = None
             self._stub = None
-            self.log.info("Disconnected")
+            self.logger.info("Disconnected")
             raise
 
     def start(self):
@@ -104,15 +104,15 @@ class SoraDeviceClient:
             self._stub.StreamDeviceState(itr, metadata=self.metadata)
         except grpc._channel._InactiveRpcError as e:
             if e.code() == grpc.StatusCode.UNAVAILABLE:
-                self.log.info(
+                self.logger.info(
                     "Server unavaliable so restarting client. This is expected during a a deploy."
                 )
             else:
-                self.log.warn(
+                self.logger.warn(
                     f"Could not connect to server for an unexpected reason: {e}"
                 )
         except Exception as e:
-            self.log.warn(f"Unexpected error when streaming state to server: {e}")
+            self.logger.warn(f"Unexpected error when streaming state to server: {e}")
         finally:
             os.kill(os.getpid(), signal.SIGUSR1)
 
@@ -121,7 +121,9 @@ class SoraDeviceClient:
             try:
                 self._stub.AddEvent(x, metadata=self.metadata)
             except Exception as e:
-                self.log.warn(f"Unexpected error when streaming event to server: {e}")
+                self.logger.warn(
+                    f"Unexpected error when streaming event to server: {e}"
+                )
 
     def add_event(self, event_type, payload=None, lat=None, lon=None):
         payload = payload or {}
@@ -136,8 +138,8 @@ class SoraDeviceClient:
             type=event_type,
             payload=payload_pb,
         )
-        self.log.info("Sending event for device %s:", self.device_config.device_id)
-        self.log.debug(event)
+        self.logger.info("Sending event for device %s:", self.device_config.device_id)
+        self.logger.debug(event)
         self._event_queue.put(device_pb2.StreamEventRequest(event=event))
 
     def send_state(self, state=None, lat=None, lon=None):
@@ -157,6 +159,6 @@ class SoraDeviceClient:
             pos=common_pb.Position(lat=lat, lon=lon),
             user_data=state_pb,
         )
-        self.log.info("Sending state for device %s:", self.device_config.device_id)
-        self.log.debug(device_state)
+        self.logger.info("Sending state for device %s:", self.device_config.device_id)
+        self.logger.debug(device_state)
         self._state_queue.put(device_pb2.StreamDeviceStateRequest(state=device_state))
