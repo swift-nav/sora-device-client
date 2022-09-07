@@ -12,15 +12,15 @@ decimate = 10
 # Exactly one driver should be specified.
 # The options are: tcp, serial
 
-# TCP socket driver
-[location.driver.tcp]
-host = "localhost"
-port = 55555
+# # TCP socket driver
+# [location.driver.tcp]
+# host = "localhost"
+# port = 55555
 
-# # Serial port driver
-# [location.driver.serial]
-# port = "/dev/ttyUSB0"
-# baud = 115200
+# Serial port driver
+[location.driver.serial]
+port = "/dev/ttyACM0"
+baud = 115200
 
 # The format describes how the location data should be decoded.
 # Exactly one driver should be specified.
@@ -33,7 +33,7 @@ port = 55555
 orientation = false
 
 ## NMEA format (no configuration options)
-# [format.nmea]
+# [location.format.nmea]
 
 # ------------------------------------------------------------------------------
 # Recipes:
@@ -43,6 +43,14 @@ orientation = false
 # decimate = 10
 # [location.driver.serial]
 # port = "/dev/ttyUSB0"
+# baud = 115200
+# [location.format.nmea]
+
+# # Sometimes the USB serial file is /dev/ttyACMx
+# [location]
+# decimate = 10
+# [location.driver.serial]
+# port = "/dev/ttyACM0"
 # baud = 115200
 # [location.format.nmea]
 

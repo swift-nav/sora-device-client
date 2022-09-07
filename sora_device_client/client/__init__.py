@@ -1,5 +1,4 @@
 import grpc
-import logging
 import os
 import queue
 import signal
@@ -10,6 +9,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.timestamp_pb2 import Timestamp
+from logging import getLogger, Logger
 from rich import print
 
 import sora.v1beta.common_pb2 as common_pb
@@ -18,8 +18,6 @@ import sora.device.v1beta.service_pb2 as device_pb2
 
 from sora_device_client.config.device import DeviceConfig
 from sora_device_client.config.server import ServerConfig
-
-log = logging.getLogger(__name__)
 
 
 class ExitMain(Exception):
@@ -46,6 +44,7 @@ class SoraDeviceClient:
     server_config: ServerConfig
     state_queue_depth: int = 0
     event_queue_depth: int = 0
+    logger: Logger = getLogger(__name__)
 
     def __post_init__(self):
         self._state_queue = queue.Queue(maxsize=self.state_queue_depth)
@@ -66,7 +65,7 @@ class SoraDeviceClient:
 
     def connect(self):
         target = self.server_config.target()
-        log.info(f"Connecting to Sora server @ {target}")
+        self.logger.info(f"Connecting to Sora server @ {target}")
 
         if self.server_config.disable_tls:
             self._chan = grpc.insecure_channel(target)
@@ -77,12 +76,12 @@ class SoraDeviceClient:
         try:
             grpc.channel_ready_future(self._chan).result(timeout=10)
             self._stub = device_grpc.DeviceServiceStub(self._chan)
-            log.info("Connected")
+            self.logger.info("Connected")
         except:
             self._chan.close()
             self._chan = None
             self._stub = None
-            log.info("Disconnected")
+            self.logger.info("Disconnected")
             raise
 
     def start(self):
@@ -105,15 +104,15 @@ class SoraDeviceClient:
             self._stub.StreamDeviceState(itr, metadata=self.metadata)
         except grpc._channel._InactiveRpcError as e:
             if e.code() == grpc.StatusCode.UNAVAILABLE:
-                logging.info(
+                self.logger.info(
                     "Server unavaliable so restarting client. This is expected during a a deploy."
                 )
             else:
-                logging.warn(
+                self.logger.warn(
                     f"Could not connect to server for an unexpected reason: {e}"
                 )
         except Exception as e:
-            logging.warn(f"Unexpected error when streaming state to server: {e}")
+            self.logger.warn(f"Unexpected error when streaming state to server: {e}")
         finally:
             os.kill(os.getpid(), signal.SIGUSR1)
 
@@ -122,7 +121,9 @@ class SoraDeviceClient:
             try:
                 self._stub.AddEvent(x, metadata=self.metadata)
             except Exception as e:
-                logging.warn(f"Unexpected error when streaming event to server: {e}")
+                self.logger.warn(
+                    f"Unexpected error when streaming event to server: {e}"
+                )
 
     def add_event(self, event_type, payload=None, lat=None, lon=None):
         payload = payload or {}
@@ -137,8 +138,8 @@ class SoraDeviceClient:
             type=event_type,
             payload=payload_pb,
         )
-        log.info("Sending event for device %s:", self.device_config.device_id)
-        log.debug(event)
+        self.logger.info("Sending event for device %s:", self.device_config.device_id)
+        self.logger.debug(event)
         self._event_queue.put(device_pb2.StreamEventRequest(event=event))
 
     def send_state(self, state=None, lat=None, lon=None):
@@ -147,6 +148,7 @@ class SoraDeviceClient:
         state_pb.update(state or {})
         timestamp.GetCurrentTime()
         device_state = common_pb.DeviceState(
+            # Note: this will be replaced the by the device_id claimed the JWT
             device_id=str(self.device_config.device_id),
             time=timestamp,
             orientation=common_pb.Orientation(
@@ -157,6 +159,6 @@ class SoraDeviceClient:
             pos=common_pb.Position(lat=lat, lon=lon),
             user_data=state_pb,
         )
-        log.info("Sending state for device %s:", self.device_config.device_id)
-        log.debug(device_state)
+        self.logger.info("Sending state for device %s:", self.device_config.device_id)
+        self.logger.debug(device_state)
         self._state_queue.put(device_pb2.StreamDeviceStateRequest(state=device_state))
