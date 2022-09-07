@@ -1,4 +1,4 @@
-SORA_API_REF := 72a98b24d4a63cf029ab039ddb1e961a04211c75
+SORA_API_REF := 3cabcf5e5addb862f01802c3c574740d6fbc70e5
 
 .PHONY: build
 build: sora .venv
@@ -11,6 +11,7 @@ sora: buf.gen.yaml
 	buf generate buf.build/swift-nav/sora-api:$(SORA_API_REF)
 
 .venv: sora pyproject.toml poetry.toml poetry.lock
+	poetry lock --check
 	poetry install
 
 .PHONY: clean
