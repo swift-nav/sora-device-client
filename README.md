@@ -9,7 +9,7 @@ Sora Device Client
     * [Python Interpreter](#python-interpreter)
     * [Python Dependencies](#python-dependencies)
 * [Command-Line Client](#command-line-client)
-  * [## Configuration file](#-configuration-file)
+  * [Configuration file](#configuration-file)
   * [Running](#running)
   * [Data file](#data-file)
 
@@ -69,21 +69,22 @@ poetry install
 # Command-Line Client
 
 ## Configuration file
-------------------------------------------------------------
-Mac OS X:               | ~/Library/Preferences/<AppName>
-Unix:                   | ~/.config/<AppName>     # or in $XDG_CONFIG_HOME, if defined
-Win XP (not roaming):   | C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client
-Win XP (roaming):       | C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client
-Win 7  (not roaming):   | C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client
-Win 7  (roaming):       | C:\Users\<username>\AppData\Roaming\SwiftNav\sora-device-client
-
-Source: https://github.com/ActiveState/appdirs/blob/193a2cbba58cce2542882fcedd0e49f6763672ed/appdirs.py#L342-L345
-
-Copy the default config file to one of the following locations:
+Copy the default config file to one of the location in the table below. For example:
 ```bash
 mkdir -p ~/.config/sora-device-client
 cp sora_device_client/config_example.toml ~/.config/sora-device-client/config.toml
 ```
+
+------------------------------------------------------------
+Mac OS X:             | `~/Library/Preferences/sora-device-client`
+Unix:                 | `~/.config/sora-device-client`     # or in `$XDG_CONFIG_HOME/sora-device-client`, if defined
+Win XP (not roaming): | `C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client`
+Win XP (roaming):     | `C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client`
+Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`
+Win 7  (roaming):     | `C:\Users\<username>\AppData\Roaming\SwiftNav\sora-device-client`
+
+Source: https://github.com/ActiveState/appdirs/blob/193a2cbba58cce2542882fcedd0e49f6763672ed/appdirs.py#L342-L345
+
 You will most likely have to edit the `[driver]` section to work with the location source for your system.
 
 ## Running
@@ -101,11 +102,11 @@ There is also a data file called `data.toml` that is used to store data that is 
 If you need to manually remove it, its location typically is:
 
 -------------------------------------------------------------------------
-Mac OS X:               | ~/Library/Application Support/sora-device-client
-Unix:                   | ~/.local/share/sora-device-client    # or in $XDG_DATA_HOME, if defined
-Win XP (not roaming):   | C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client
-Win XP (roaming):       | C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client
-Win 7  (not roaming):   | C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client
-Win 7  (roaming):       | C:\Users\<username>\AppData\Roaming\SwiftNav\sora-device-client
+Mac OS X:             | `~/Library/Application Support/sora-device-client`
+Unix:                 | `~/.local/share/sora-device-client`    # or in `$XDG_DATA_HOME/sora-device-client`, if defined
+Win XP (not roaming): | `C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client`
+Win XP (roaming):     | `C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client`
+Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`
+Win 7  (roaming):     | `C:\Users\<username>\AppData\Roaming\SwiftNav\sora-device-client`
 
 Source: https://github.com/ActiveState/appdirs/blob/193a2cbba58cce2542882fcedd0e49f6763672ed/appdirs.py#L65-L71
