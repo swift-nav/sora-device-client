@@ -6,11 +6,13 @@ Sora Device Client
 * [Installing](#installing)
   * [Dependencies](#dependencies)
     * [Buf](#buf)
-    * [Python](#python)
+    * [Python Interpreter](#python-interpreter)
+    * [Python Dependencies](#python-dependencies)
 * [Command-Line Client](#command-line-client)
-  * [Configuration](#configuration)
-    * [Configuration file](#configuration-file)
+  * [## Configuration file](#-configuration-file)
   * [Running](#running)
+  * [Data file](#data-file)
+  * [If you need to manually remove it, its location typically is:](#if-you-need-to-manually-remove-it-its-location-typically-is)
 
 <!-- vim-markdown-toc -->
 
@@ -23,6 +25,8 @@ The Sora Device Client consists of:
 
 # Installing
 ## Dependencies
+
+You should only need to follow these steps once per machine you are setting up to run the sora-device-client on.
 
 ### Buf
 
@@ -40,13 +44,15 @@ Then the api libraries can be generated with:
 make grpc
 ```
 
-### Python
+### Python Interpreter
 You need to install python 3.10.
 ```bash
 brew install python@3.10
 ```
-Although we recommend using something line [pyenv](https://github.com/pyenv/pyenv)
+Although we recommend using something like [pyenv](https://github.com/pyenv/pyenv)
 or [asdf](https://asdf-vm.com/) to manage your python versions.
+
+### Python Dependencies
 
 We manage python dependencies with [Poetry](https://python-poetry.org/).
 
@@ -81,9 +87,9 @@ Here are the paths for each platform for the config file:
 Copy the default config file to one of the following locations:
 ```bash
 mkdir -p ~/.config/sora-device-client
-cp sora_device_client/config_example.toml ~/.config/sora-device-client
+cp sora_device_client/config_example.toml ~/.config/sora-device-client/config.toml
 ```
-You will most likely have to edit the `driver` section to work with the location source for your system.
+You will most likely have to edit the `[driver]` section to work with the location source for your system.
 
 ## Running
 To run the command-line client, launch a shell from poetry:
