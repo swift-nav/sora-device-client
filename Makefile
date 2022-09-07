@@ -12,7 +12,7 @@ sora: buf.gen.yaml
 
 .venv: sora pyproject.toml poetry.toml poetry.lock
 	poetry lock --check
-	poetry install --no-root
+	poetry install
 
 .PHONY: clean
 clean:
