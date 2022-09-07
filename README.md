@@ -76,8 +76,8 @@ cp sora_device_client/config_example.toml ~/.config/sora-device-client/config.to
 ```
                       |
 ----------------------|-------------------------------------
-Mac OS X:             | `~/Library/Preferences/sora-device-client`
-Unix:                 | `~/.config/sora-device-client`     # or in `$XDG_CONFIG_HOME/sora-device-client`, if defined
+MacOS:                | `~/Library/Preferences/sora-device-client`
+Other Unix:           | `~/.config/sora-device-client`     # or in `$XDG_CONFIG_HOME/sora-device-client`, if defined
 Win XP (not roaming): | `C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client`
 Win XP (roaming):     | `C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client`
 Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`
@@ -102,8 +102,8 @@ There is also a data file called `data.toml` that is used to store data that is 
 If you need to manually remove it, its location typically is:
                       |
 ----------------------|--------------------------------------------------
-Mac OS X:             | `~/Library/Application Support/sora-device-client`
-Unix:                 | `~/.local/share/sora-device-client`    # or in `$XDG_DATA_HOME/sora-device-client`, if defined
+MacOS:                | `~/Library/Application Support/sora-device-client`
+Other Unix:           | `~/.local/share/sora-device-client`    # or in `$XDG_DATA_HOME/sora-device-client`, if defined
 Win XP (not roaming): | `C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client`
 Win XP (roaming):     | `C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client`
 Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`
