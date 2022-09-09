@@ -56,7 +56,7 @@ orientation = false
 # [location.format.sbp]
 # orientation = false
 
-# # On macOS it is known to be /dev/tty.usbmodem14401 instead
+# # On macOS it is has been observed to be /dev/tty.usbmodem14401 at least once
 # [location]
 # decimate = 10
 # [location.driver.serial]
