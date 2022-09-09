@@ -62,7 +62,8 @@ orientation = false
 # [location.driver.serial]
 # port = "/dev/tty.usbmodem14401"
 # baud = 115200
-# [location.format.nmea]
+# [location.format.sbp]
+# orientation = false
 
 # # Piksi Multi / Duro / Starling connected over TCP
 # [location]
