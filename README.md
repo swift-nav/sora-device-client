@@ -51,7 +51,8 @@ make
 ```
 
 ### Python Interpreter
-You need to install python 3.10.
+You need to install python 3.10. See <https://www.python.org/downloads/> for download instructions.
+On macOS, you can use homebrew as well:
 ```bash
 brew install python@3.10
 ```
