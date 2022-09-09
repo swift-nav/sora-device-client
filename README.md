@@ -47,7 +47,7 @@ brew install bufbuild/buf/buf
 
 Then the api libraries can be generated with:
 ```bash
-make grpc
+make
 ```
 
 ### Python Interpreter
