@@ -119,4 +119,4 @@ If you need to manually remove it, its location typically is:
 | Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`                                    |
 | Win 7  (roaming):     | `C:\Users\<username>\AppData\Roaming\SwiftNav\sora-device-client`                                  |
 
-Source: https://github.com/ActiveState/appdirs/blob/193a2cbba58cce2542882fcedd0e49f6763672ed/appdirs.py#L65-L71
+Source: https://github.com/ActiveState/appdirs/blob/193a2cbba58cce2542882fcedd0e49f6763672ed/appdirs.py#L186-L189
