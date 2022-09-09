@@ -62,13 +62,13 @@ or [asdf](https://asdf-vm.com/) to manage your python versions.
 ### Python Dependencies
 
 We manage python dependencies with [Poetry](https://python-poetry.org/).
-
 They are recorded in `pyproject.toml`. Note that there are dev and prod dependencies.
-
-You will need to install the poetry cli to use it
+You will need to install the poetry cli to use it. On macOS this may be done with homebrew.
 ```bash
 brew install poetry
 ```
+For platform independent installation instruction, see <https://python-poetry.org/docs/#installing-with-pipx>. Note that asdf can also manage poetry installations: <https://github.com/asdf-community/asdf-poetry>.
+
 And then install the dependencies:
 ```bash
 poetry install
