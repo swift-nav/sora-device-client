@@ -19,7 +19,7 @@ decimate = 10
 
 # Serial port driver
 [location.driver.serial]
-port = "/dev/ttyACM0"
+port = "/dev/tty.usbmodem14401"
 baud = 115200
 
 # The format describes how the location data should be decoded.
@@ -38,19 +38,29 @@ orientation = false
 # ------------------------------------------------------------------------------
 # Recipes:
 
-# # Typical GPS receiver connected over USB Serial
+# # Typical SwiftNav GNSS receiver connected over USB Serial
 # [location]
 # decimate = 10
 # [location.driver.serial]
 # port = "/dev/ttyUSB0"
 # baud = 115200
-# [location.format.nmea]
+# [location.format.sbp]
+# orientation = false
 
 # # Sometimes the USB serial file is /dev/ttyACMx
 # [location]
 # decimate = 10
 # [location.driver.serial]
 # port = "/dev/ttyACM0"
+# baud = 115200
+# [location.format.sbp]
+# orientation = false
+
+# # On macOS it is known to be /dev/tty.usbmodem14401 instead
+# [location]
+# decimate = 10
+# [location.driver.serial]
+# port = "/dev/tty.usbmodem14401"
 # baud = 115200
 # [location.format.nmea]
 
@@ -71,3 +81,11 @@ orientation = false
 # port = 55555
 # [location.format.sbp]
 # orientation = true
+
+# For non Swift Hardware that supports NMEA:
+# [location]
+# decimate = 10
+# [location.driver.serial]
+# port = "/dev/ttyUSB0"
+# baud = 115200
+# [location.format.nmea]
