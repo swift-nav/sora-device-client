@@ -5,6 +5,7 @@ Sora Device Client
 
 * [Installing](#installing)
   * [Dependencies](#dependencies)
+    * [Package Manger](#package-manger)
     * [Buf](#buf)
     * [Python Interpreter](#python-interpreter)
     * [Python Dependencies](#python-dependencies)
@@ -26,6 +27,12 @@ The Sora Device Client consists of:
 ## Dependencies
 
 You should only need to follow these steps once per machine you are setting up to run the sora-device-client on.
+
+### Package Manger
+You will most likely need a package manager to install the other dependencies. Use the one that is canonical for your distribution, for example: `apt`, `dnf`, `yum`, `pacman`.
+
+For macOS, it is recommend to use [homebrew](https://brew.sh/). For windows, something like [chocholately](https://chocolatey.org/) will do.
+
 
 ### Buf
 
