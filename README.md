@@ -77,22 +77,25 @@ poetry install
 # Command-Line Client
 
 ## Configuration file
-Copy the default config file to one of the location in the table below. For example:
-```bash
-mkdir -p ~/.config/sora-device-client
-cp sora_device_client/config_example.toml ~/.config/sora-device-client/config.toml
-```
-
+Copy the default config file to one of the locations in the table below.
 | OS                    | Path                                                                                               |
 |-----------------------|----------------------------------------------------------------------------------------------------|
-| MacOS:                | `~/Library/Preferences/sora-device-client`                                                         |
+| MacOS:                | `~/Library/Application Support/sora-device-client`                                                         |
 | Other Unix:           | `~/.config/sora-device-client` or `$XDG_CONFIG_HOME/sora-device-client`, if defined                |
 | Win XP (not roaming): | `C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client`                |
 | Win XP (roaming):     | `C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client` |
 | Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`                                    |
 | Win 7  (roaming):     | `C:\Users\<username>\AppData\Roaming\SwiftNav\sora-device-client`                                  |
 
-Source: https://github.com/ActiveState/appdirs/blob/193a2cbba58cce2542882fcedd0e49f6763672ed/appdirs.py#L342-L345
+For example, if you are on macOS:
+```bash
+mkdir -p "~/Library/Application Support/sora-device-client"
+```
+
+```bash
+cp sora_device_client/config_example.toml "~/Library/Application Support/sora-device-client/config.toml"
+```
+Source: https://github.com/ActiveState/appdirs/blob/7af32e0b1fe57070ae8b5a717cdaebc094449518/appdirs.py#L187-L190
 
 You will most likely have to edit the `[driver]` section to work with the location source for your system.
 
@@ -119,4 +122,4 @@ If you need to manually remove it, its location typically is:
 | Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`                                    |
 | Win 7  (roaming):     | `C:\Users\<username>\AppData\Roaming\SwiftNav\sora-device-client`                                  |
 
-Source: https://github.com/ActiveState/appdirs/blob/193a2cbba58cce2542882fcedd0e49f6763672ed/appdirs.py#L186-L189
+Source: https://github.com/ActiveState/appdirs/blob/7af32e0b1fe57070ae8b5a717cdaebc094449518/appdirs.py#L66-L72
