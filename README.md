@@ -12,6 +12,9 @@ Sora Device Client
 * [Command-Line Client](#command-line-client)
   * [Configuration file](#configuration-file)
   * [Running](#running)
+    * [Login](#login)
+    * [Start](#start)
+    * [Logout](#logout)
   * [Data file](#data-file)
 
 <!-- vim-markdown-toc -->
@@ -107,6 +110,25 @@ poetry shell
 In the new shell, the `sora` command will be in the path:
 ```bash
 sora --help
+```
+
+### Login
+To authenticate with a sora server, run
+```bash
+sora login
+```
+and follow the interactive procedure. You will need access to a web browser.
+
+### Start
+After authentication, you can stream data to the sora server with
+```bash
+sora --verbose start
+```
+
+### Logout
+If you wish to use a difference set of credentials on the same hardware, you can clear them with
+```bash
+sora logout
 ```
 
 ## Data file
