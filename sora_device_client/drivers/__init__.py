@@ -10,8 +10,8 @@ class DriverConfigValueError(Exception):
 
 
 def tcp_driver_from_config(config):
-    tcp_host = config["host"]
-    tcp_port = config["port"]
+    tcp_host = str(config["host"])
+    tcp_port = int(config["port"])
     log.info(f"Using TCP driver: {tcp_host}:{tcp_port}")
     from sbp.client.drivers.network_drivers import TCPDriver
 
