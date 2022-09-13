@@ -2,7 +2,7 @@
 name = "sora-device-client"
 version = "0.1.0"
 description = "A client to stream device location data to a sever for the SORA api"
-authors = ["Swift Navifation <developers@swiftnav.com>"]
+authors = ["Swift Navigation <developers@swift-nav.com>"]
 readme = "README.md"
 packages = [
   { include = "sora" },
@@ -26,7 +26,5 @@ pytest = "^7.1"
 sora = "sora_device_client.cli:app"
 
 [build-system]
-requires = [
-  "poetry-core>=1.0.0"
-]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
