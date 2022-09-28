@@ -34,7 +34,7 @@ You should only need to follow these steps once per machine you are setting up t
 ### Package Manger
 You will most likely need a package manager to install the other dependencies. Use the one that is canonical for your distribution, for example: `apt`, `dnf`, `yum`, `pacman`.
 
-For macOS, it is recommend to use [homebrew](https://brew.sh/). For windows, something like [chocholately](https://chocolatey.org/) will do.
+For macOS, it is recommend to use [homebrew](https://brew.sh/). For windows, something like [chocolately](https://chocolatey.org/) will do.
 
 
 ### Buf
@@ -96,13 +96,13 @@ mkdir -p "~/Library/Application Support/sora-device-client"
 ```
 
 ```bash
-cp sora_device_client/config_example.toml "~/Library/Application Support/sora-device-client/config.toml"
+cp sora_device_client/config_example.toml ~/Library/Application\ Support/sora-device-client/config.toml
 ```
 Source: https://github.com/ActiveState/appdirs/blob/7af32e0b1fe57070ae8b5a717cdaebc094449518/appdirs.py#L187-L190
 
 You will most likely have to edit the `[location.driver]` section to work with the location source for your system.
 
-If you are connecting to a GNNS location source over the network, it will be something like:
+If you are connecting to a GNSS location source over the network, it will be something like:
 ```toml
 [location.driver.tcp]
 host = "localhost"
