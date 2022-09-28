@@ -92,7 +92,7 @@ Copy the default config file to one of the locations in the table below.
 
 For example, if you are on macOS:
 ```bash
-mkdir -p "~/Library/Application Support/sora-device-client"
+mkdir -p ~/Library/Application\ Support/sora-device-client
 ```
 
 ```bash
@@ -114,14 +114,14 @@ However if you are connecting over a serial or USB port:
 port = "/dev/tty.usbmodem14401"
 baud = 115200
 ```
-The value of `port` will be highly hardware specific some values that are known to have worked are: `/dev/ttyACM0`, `/dev/ttyUSB0`, `/dev/tty.usbmodem14401`.
+The value of `port` will be highly hardware specific. Some values that are known to have worked are: `/dev/ttyACM0`, `/dev/ttyUSB0`, `/dev/tty.usbmodem14401`.
 If you have Swift hardware and have installed the Swift Console: https://support.swiftnav.com/support/solutions/articles/44001903699-installing-swift-console, the value used to connect it to your swift device will work.
 
 Also note that sometimes non privileged users do not have permission to read and write to the device. The easiest way to obtain these permissions is to add your user to the group of the device. For example if it is `/dev/ttyACM0`, the group to add yourself to may be obtained with:
 ```bash
 stat -c "%G" /dev/ttyACM0
 ```
-See [here](https://wiki.archlinux.org/title/users_and_groups#Other_examples_of_user_management) for how to add a user to a group. You may need to log out of and log in to the operating system session again.
+See [here](https://wiki.archlinux.org/title/users_and_groups#Other_examples_of_user_management) for how to add a user to a group on Linux. You may need to log out of and log in to the operating system session again. On macOS and Windows, the instructions are too varied to list here. Please research how to do this for your combination of OS and OS version.
 
 ## Running
 To run the command-line client, launch a shell from poetry:
