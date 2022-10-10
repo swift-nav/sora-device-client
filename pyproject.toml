@@ -13,7 +13,7 @@ python = "^3.10"
 grpcio = "1.48.1" # must match version of grpc in buf.yaml
 gtfs-realtime-bindings = "^0.0.7"
 requests = "^2.28.0"
-sbp = "^4.7.0"
+sbp = "^4.8.0"
 tomlkit = "^0.11.4"
 appdirs = "^1.4.4"
 typer = {extras = ["all"], version = "^0.6.1"}
