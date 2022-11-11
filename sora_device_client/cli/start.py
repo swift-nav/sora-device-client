@@ -42,7 +42,10 @@ def start():
                 try:
                     for i, loc in enumerate(source):
                         if i % decimate == 0:
-                            if(loc.status['fix_mode'] is not None and loc.status['fix_mode'] != 'Invalid'):
+                            if (
+                                loc.status["fix_mode"] is not None
+                                and loc.status["fix_mode"] != "Invalid"
+                            ):
                                 client.send_state(
                                     loc.status,
                                     lat=loc.position.lat,
