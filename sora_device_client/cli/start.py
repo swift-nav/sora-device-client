@@ -42,11 +42,12 @@ def start():
                 try:
                     for i, loc in enumerate(source):
                         if i % decimate == 0:
-                            client.send_state(
-                                loc.status,
-                                lat=loc.position.lat,
-                                lon=loc.position.lon,
-                            )
+                            if(loc.status['fix_mode'] is not None and loc.status['fix_mode'] != 'Invalid'):
+                                client.send_state(
+                                    loc.status,
+                                    lat=loc.position.lat,
+                                    lon=loc.position.lon,
+                                )
                 except KeyboardInterrupt:
                     print("Terminating state stream.")
                     raise typer.Exit(code=0)
