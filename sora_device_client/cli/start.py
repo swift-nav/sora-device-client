@@ -8,7 +8,7 @@ from sora_device_client.config.device import DeviceConfig
 from sora_device_client.config.server import ServerConfig
 from sora_device_client.exceptions import ConfigValueError, DataFileNotFound
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def start():
@@ -48,7 +48,7 @@ def start():
                             continue
                         fix_mode = loc.status["fix_mode"]
                         if fix_mode is None or fix_mode == "Invalid":
-                            logging.warn("fix_mode is %s, not sending state.", fix_mode)
+                            logger.warn("fix_mode is %s, not sending state.", fix_mode)
                             continue
                         client.send_state(
                             loc.status,
@@ -56,8 +56,8 @@ def start():
                             lon=loc.position.lon,
                         )
                 except KeyboardInterrupt:
-                    logging.info("Terminating state stream.")
+                    logger.info("Terminating state stream.")
                     raise typer.Exit(code=0)
     except ConfigValueError as e:
-        logging.error(e)
+        logger.error(e)
         raise typer.Exit(code=1)
