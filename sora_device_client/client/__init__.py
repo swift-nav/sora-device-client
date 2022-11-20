@@ -3,6 +3,9 @@ import os
 import queue
 import signal
 import threading
+from persistqueue import SQLiteAckQueue, FIFOSQLiteQueue
+import sys
+import itertools
 
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -47,8 +50,19 @@ class SoraDeviceClient:
     logger: Logger = getLogger(__name__)
 
     def __post_init__(self):
-        self._state_queue = queue.Queue(maxsize=self.state_queue_depth)
-        self._event_queue = queue.Queue(maxsize=self.event_queue_depth)
+        # self._state_queue = queue.Queue(maxsize=self.state_queue_depth)
+        # self._event_queue = queue.Queue(maxsize=self.event_queue_depth)
+        # Todo : SORA-412 To save device_client data on to disk instead of in-memory. Idea is
+        # when there is issues connecting to server, this data on disk can be retrieved later
+        # when the connectivity is restored and sent to server.
+        # Currently using FIFOSQLiteQueue which is cleared from disk as messages are popped.
+        # Later need to see if SQLiteAckQueue is appropriate with acknowledgements in place.
+        self._state_queue = FIFOSQLiteQueue(
+            "../state", multithreading=True, auto_commit=True
+        )
+        self._event_queue = FIFOSQLiteQueue(
+            "../event", multithreading=True, auto_commit=True
+        )
         self.metadata = [("authorization", f"Bearer {self.device_config.access_token}")]
         self._state_worker = threading.Thread(
             target=self._state_stream_sender,
@@ -112,7 +126,10 @@ class SoraDeviceClient:
                     f"Could not connect to server for an unexpected reason: {e}"
                 )
         except Exception as e:
-            self.logger.warn(f"Unexpected error when streaming state to server: {e}")
+            self.logger.error(
+                f"Unexpected error when streaming state to server: {e}", exc_info=e
+            )
+        # Todo Fix for Sora-359
         finally:
             os.kill(os.getpid(), signal.SIGUSR1)
 
