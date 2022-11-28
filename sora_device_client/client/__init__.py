@@ -1,3 +1,6 @@
+import logging
+import time
+
 import grpc
 import os
 import queue
@@ -6,6 +9,7 @@ import threading
 from persistqueue import SQLiteAckQueue, FIFOSQLiteQueue
 import sys
 import itertools
+import sched
 
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -57,16 +61,16 @@ class SoraDeviceClient:
         # when the connectivity is restored and sent to server.
         # Currently using FIFOSQLiteQueue which is cleared from disk as messages are popped.
         # Later need to see if SQLiteAckQueue is appropriate with acknowledgements in place.
-        self._state_queue = FIFOSQLiteQueue(
+        self._state_queue = SQLiteAckQueue(
             "../state", multithreading=True, auto_commit=True
         )
-        self._event_queue = FIFOSQLiteQueue(
+        self._event_queue = SQLiteAckQueue(
             "../event", multithreading=True, auto_commit=True
         )
         self.metadata = [("authorization", f"Bearer {self.device_config.access_token}")]
         self._state_worker = threading.Thread(
             target=self._state_stream_sender,
-            args=(iter(self._state_queue.get, None),),
+            args=(self._state_queue,),
             daemon=True,
         )
         self._event_worker = threading.Thread(
@@ -98,6 +102,14 @@ class SoraDeviceClient:
             self.logger.info("Disconnected")
             raise
 
+    #Todo: Instead of clearing the ack data in a new thread, should move this to existing thread for performance
+    def clearAckData(self, n=5):
+        while(True):
+            print(f"Clearing acked Data ..Begin")
+            self._state_queue.clear_acked_data(keep_latest=1000, max_delete=10000)
+            print(f"Clearing acked Data ..End")
+            time.sleep(n)
+
     def start(self):
         def signal_handler(signal, frame):
             """
@@ -110,28 +122,60 @@ class SoraDeviceClient:
         self.connect()
         self._state_worker.start()
         self._event_worker.start()
+        threading.Thread(target=self.clearAckData, daemon=True).start()
+
         print(f"Sending state as device {self.device_config.device_name} to project.")
         # TODO: print urls of all projects the device is sending state to
 
-    def _state_stream_sender(self, itr):
-        try:
-            self._stub.StreamDeviceState(itr, metadata=self.metadata)
-        except grpc._channel._InactiveRpcError as e:
-            if e.code() == grpc.StatusCode.UNAVAILABLE:
-                self.logger.info(
-                    "Server unavaliable so restarting client. This is expected during a a deploy."
+
+    """ 
+    SQLiteAckQueue status
+        inited = '0'
+        ready = '1'
+        unack = '2'
+        acked = '5'
+        ack_failed = '9'
+    """
+    def _state_stream_sender(self, que : SQLiteAckQueue):
+        def customItr():
+            #while(True):
+            global x
+            x= que.get()
+            try:
+                #print(x)
+                #if thereis an error in stream, this yield will never complete
+                yield x
+                print('acking')
+                preId = que.ack(x)
+                #ToDo: Move this to a timer task and should also execute when there is exception
+                #que.clear_acked_data(keep_latest=1000, max_delete=10000)
+            except Exception as e:
+                logging.error(f"Iterator failed processing item {x}", exc_info=e)
+                raise e
+
+        while(True):
+            try:
+                self._stub.StreamDeviceState(customItr(), metadata=self.metadata)
+            except grpc._channel._InactiveRpcError as e:
+                #logging.error(f"Queue failed processing item: {x}")
+                if e.code() == grpc.StatusCode.UNAVAILABLE:
+                    self.logger.info(
+                        f"Server unavaliable so restarting client. This is expected during a a deploy : {e}"
+                    )
+                else:
+                    self.logger.warn(
+                        f"Could not connect to server for an unexpected reason: {e}"
+                    )
+                # Update ack status. This is needed as the queue acknowledgements were not persisted in-order and on
+                # exception, and un-acknowledged data was never picked up by the queue consumer when the exceptions are fixed.
+                que.resume_unack_tasks()
+            except Exception as e:
+                self.logger.error(
+                    f"Unexpected error when streaming state to server: {e}"
                 )
-            else:
-                self.logger.warn(
-                    f"Could not connect to server for an unexpected reason: {e}"
-                )
-        except Exception as e:
-            self.logger.error(
-                f"Unexpected error when streaming state to server: {e}", exc_info=e
-            )
-        # Todo Fix for Sora-359
-        finally:
-            os.kill(os.getpid(), signal.SIGUSR1)
+            # Todo Fix for Sora-359
+            #finally:
+            #    os.kill(os.getpid(), signal.SIGUSR1)
 
     def _event_stream_sender(self, itr):
         for x in itr:
