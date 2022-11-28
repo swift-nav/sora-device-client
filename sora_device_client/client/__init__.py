@@ -102,9 +102,9 @@ class SoraDeviceClient:
             self.logger.info("Disconnected")
             raise
 
-    #Todo: Instead of clearing the ack data in a new thread, should move this to existing thread for performance
+    # Todo: Instead of clearing the ack data in a new thread, should move this to existing thread for performance
     def clearAckData(self, n=5):
-        while(True):
+        while True:
             print(f"Clearing acked Data ..Begin")
             self._state_queue.clear_acked_data(keep_latest=1000, max_delete=10000)
             print(f"Clearing acked Data ..End")
@@ -127,7 +127,6 @@ class SoraDeviceClient:
         print(f"Sending state as device {self.device_config.device_name} to project.")
         # TODO: print urls of all projects the device is sending state to
 
-
     """ 
     SQLiteAckQueue status
         inited = '0'
@@ -136,28 +135,29 @@ class SoraDeviceClient:
         acked = '5'
         ack_failed = '9'
     """
-    def _state_stream_sender(self, que : SQLiteAckQueue):
+
+    def _state_stream_sender(self, que: SQLiteAckQueue):
         def customItr():
-            #while(True):
+            # while(True):
             global x
-            x= que.get()
+            x = que.get()
             try:
-                #print(x)
-                #if thereis an error in stream, this yield will never complete
+                # print(x)
+                # if thereis an error in stream, this yield will never complete
                 yield x
-                print('acking')
+                print("acking")
                 preId = que.ack(x)
-                #ToDo: Move this to a timer task and should also execute when there is exception
-                #que.clear_acked_data(keep_latest=1000, max_delete=10000)
+                # ToDo: Move this to a timer task and should also execute when there is exception
+                # que.clear_acked_data(keep_latest=1000, max_delete=10000)
             except Exception as e:
                 logging.error(f"Iterator failed processing item {x}", exc_info=e)
                 raise e
 
-        while(True):
+        while True:
             try:
                 self._stub.StreamDeviceState(customItr(), metadata=self.metadata)
             except grpc._channel._InactiveRpcError as e:
-                #logging.error(f"Queue failed processing item: {x}")
+                # logging.error(f"Queue failed processing item: {x}")
                 if e.code() == grpc.StatusCode.UNAVAILABLE:
                     self.logger.info(
                         f"Server unavaliable so restarting client. This is expected during a a deploy : {e}"
@@ -174,7 +174,7 @@ class SoraDeviceClient:
                     f"Unexpected error when streaming state to server: {e}"
                 )
             # Todo Fix for Sora-359
-            #finally:
+            # finally:
             #    os.kill(os.getpid(), signal.SIGUSR1)
 
     def _event_stream_sender(self, itr):
