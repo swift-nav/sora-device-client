@@ -120,20 +120,17 @@ class SoraDeviceClient:
     """
 
     def _state_stream_sender(self, que: SQLiteAckQueue):
-        def customItr():
-            global x
-            x = que.get()
-            try:
+        def iter_ack_queue():
+            while True:
+                x = que.get()
                 que.clear_acked_data(keep_latest=500)
-                # if thereis an error in stream, this yield will never complete
+                # if there is an error in stream, this yield will never complete.
                 yield x
                 preId = que.ack(x)
                 self.logger.debug(f"Acknowledged queue itemId:  {preId}")
-            except Exception as e:
-                logging.error(f"Iterator failed processing item {x}", exc_info=e)
-                raise e
 
         while True:
+            self.logger.debug("opening StreamDeviceState")
             try:
                 self._stub.StreamDeviceState(customItr(), metadata=self.metadata)
             except grpc._channel._InactiveRpcError as e:
@@ -157,9 +154,6 @@ class SoraDeviceClient:
                 self.logger.error(
                     f"Unexpected error when streaming state to server: {e}", exc_info=e
                 )
-            # Todo Fix for Sora-359
-            # finally:
-            #    os.kill(os.getpid(), signal.SIGUSR1)
 
     def _event_stream_sender(self, itr):
         for x in itr:
