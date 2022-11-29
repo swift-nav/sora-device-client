@@ -154,6 +154,7 @@ class SoraDeviceClient:
                 self.logger.error(
                     f"Unexpected error when streaming state to server: {e}", exc_info=e
                 )
+            self.logger.warn("StreamDeviceState connection closed, retrying...")
 
     def _event_stream_sender(self, itr):
         for x in itr:
