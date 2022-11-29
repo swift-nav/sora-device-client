@@ -1,15 +1,10 @@
 import logging
-import time
-
 import grpc
 import os
 import queue
 import signal
 import threading
-from persistqueue import SQLiteAckQueue, FIFOSQLiteQueue
-import sys
-import itertools
-import sched
+from persistqueue import SQLiteAckQueue
 
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -54,13 +49,11 @@ class SoraDeviceClient:
     logger: Logger = getLogger(__name__)
 
     def __post_init__(self):
-        # self._state_queue = queue.Queue(maxsize=self.state_queue_depth)
-        # self._event_queue = queue.Queue(maxsize=self.event_queue_depth)
-        # Todo : SORA-412 To save device_client data on to disk instead of in-memory. Idea is
-        # when there is issues connecting to server, this data on disk can be retrieved later
-        # when the connectivity is restored and sent to server.
-        # Currently using FIFOSQLiteQueue which is cleared from disk as messages are popped.
-        # Later need to see if SQLiteAckQueue is appropriate with acknowledgements in place.
+        """
+        SORA-412: To save device_client data on to disk instead of in-memory.
+        When there is any issue connecting to server, the data on disk can be retrieved later
+        when the connectivity is restored and sent to server.
+        """
         self._state_queue = SQLiteAckQueue(
             "../state", multithreading=True, auto_commit=True
         )
@@ -102,14 +95,6 @@ class SoraDeviceClient:
             self.logger.info("Disconnected")
             raise
 
-    # Todo: Instead of clearing the ack data in a new thread, should move this to existing thread for performance
-    def clearAckData(self, n=5):
-        while True:
-            print(f"Clearing acked Data ..Begin")
-            self._state_queue.clear_acked_data(keep_latest=1000, max_delete=10000)
-            print(f"Clearing acked Data ..End")
-            time.sleep(n)
-
     def start(self):
         def signal_handler(signal, frame):
             """
@@ -122,8 +107,6 @@ class SoraDeviceClient:
         self.connect()
         self._state_worker.start()
         self._event_worker.start()
-        threading.Thread(target=self.clearAckData, daemon=True).start()
-
         print(f"Sending state as device {self.device_config.device_name} to project.")
         # TODO: print urls of all projects the device is sending state to
 
@@ -164,7 +147,7 @@ class SoraDeviceClient:
                         f"Could not connect to server for an unexpected reason: {e}",
                         exc_info=e,
                     )
-                # Whenever there is server exceptions, if you want to keep more data on disk, bump the keep_latest
+                # Whenever there is server exceptions, if you want to keep more data on disk, bump up the keep_latest
                 que.clear_acked_data(keep_latest=100000)
                 self.logger.debug("Cleared Acknowledged data. keep_latest=100000")
                 # Update ack status. This is needed as the queue acknowledgements were not persisted in-order on
