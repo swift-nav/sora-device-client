@@ -138,17 +138,14 @@ class SoraDeviceClient:
 
     def _state_stream_sender(self, que: SQLiteAckQueue):
         def customItr():
-            # while(True):
             global x
             x = que.get()
             try:
-                # print(x)
+                que.clear_acked_data(keep_latest=500)
                 # if thereis an error in stream, this yield will never complete
                 yield x
-                print("acking")
                 preId = que.ack(x)
-                # ToDo: Move this to a timer task and should also execute when there is exception
-                # que.clear_acked_data(keep_latest=1000, max_delete=10000)
+                self.logger.debug(f"Acknowledged queue itemId:  {preId}")
             except Exception as e:
                 logging.error(f"Iterator failed processing item {x}", exc_info=e)
                 raise e
@@ -157,21 +154,25 @@ class SoraDeviceClient:
             try:
                 self._stub.StreamDeviceState(customItr(), metadata=self.metadata)
             except grpc._channel._InactiveRpcError as e:
-                # logging.error(f"Queue failed processing item: {x}")
                 if e.code() == grpc.StatusCode.UNAVAILABLE:
-                    self.logger.info(
-                        f"Server unavaliable so restarting client. This is expected during a a deploy : {e}"
+                    self.logger.error(
+                        f"Server unavaliable so restarting client. This is expected during a deploy or when server is down : {e}",
+                        exc_info=e,
                     )
                 else:
-                    self.logger.warn(
-                        f"Could not connect to server for an unexpected reason: {e}"
+                    self.logger.error(
+                        f"Could not connect to server for an unexpected reason: {e}",
+                        exc_info=e,
                     )
-                # Update ack status. This is needed as the queue acknowledgements were not persisted in-order and on
+                # Whenever there is server exceptions, if you want to keep more data on disk, bump the keep_latest
+                que.clear_acked_data(keep_latest=100000)
+                self.logger.debug("Cleared Acknowledged data. keep_latest=100000")
+                # Update ack status. This is needed as the queue acknowledgements were not persisted in-order on
                 # exception, and un-acknowledged data was never picked up by the queue consumer when the exceptions are fixed.
                 que.resume_unack_tasks()
             except Exception as e:
                 self.logger.error(
-                    f"Unexpected error when streaming state to server: {e}"
+                    f"Unexpected error when streaming state to server: {e}", exc_info=e
                 )
             # Todo Fix for Sora-359
             # finally:
