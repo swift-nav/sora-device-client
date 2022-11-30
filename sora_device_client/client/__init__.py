@@ -140,7 +140,7 @@ class SoraDeviceClient:
                 if e.code() == grpc.StatusCode.UNAVAILABLE:
                     self.logger.error(
                         f"Server {self.server_config.host}:{self.server_config.port} Unavailable. This is expected during a deploy or when server is down : {e}",
-                        #exc_info=e,
+                        # exc_info=e,
                     )
                 else:
                     self.logger.error(
@@ -155,7 +155,8 @@ class SoraDeviceClient:
                 que.resume_unack_tasks()
             except Exception as e:
                 self.logger.error(
-                    f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}", exc_info=e
+                    f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}",
+                    exc_info=e,
                 )
             self.logger.warn("StreamDeviceState connection closed, Retrying...")
 
@@ -165,7 +166,8 @@ class SoraDeviceClient:
                 self._stub.AddEvent(x, metadata=self.metadata)
             except Exception as e:
                 self.logger.error(
-                    f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}", exc_info=e
+                    f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}",
+                    exc_info=e,
                 )
                 que.clear_acked_data(keep_latest=100000)
                 self.logger.debug("Cleared Acknowledged data. keep_latest=100000")
