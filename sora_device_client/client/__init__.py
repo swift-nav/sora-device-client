@@ -136,14 +136,15 @@ class SoraDeviceClient:
                     self.iter_ack_queue(que), metadata=self.metadata
                 )
             except grpc._channel._InactiveRpcError as e:
+                self.logger.info(f"grpc StatusCode: {e.code}")
                 if e.code() == grpc.StatusCode.UNAVAILABLE:
                     self.logger.error(
-                        f"Server unavaliable so restarting client. This is expected during a deploy or when server is down : {e}",
-                        exc_info=e,
+                        f"Server {self.server_config.host}:{self.server_config.port} Unavailable. This is expected during a deploy or when server is down : {e}",
+                        #exc_info=e,
                     )
                 else:
                     self.logger.error(
-                        f"Could not connect to server for an unexpected reason: {e}",
+                        f"Could not connect to Server {self.server_config.host}:{self.server_config.port} for an unexpected reason: {e}",
                         exc_info=e,
                     )
                 # Whenever there is server exceptions, if you want to keep more data on disk, bump up the keep_latest = num of rows
@@ -154,7 +155,7 @@ class SoraDeviceClient:
                 que.resume_unack_tasks()
             except Exception as e:
                 self.logger.error(
-                    f"Unexpected error when streaming state to server: {e}", exc_info=e
+                    f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}", exc_info=e
                 )
             self.logger.warn("StreamDeviceState connection closed, Retrying...")
 
@@ -164,7 +165,7 @@ class SoraDeviceClient:
                 self._stub.AddEvent(x, metadata=self.metadata)
             except Exception as e:
                 self.logger.error(
-                    f"Unexpected error when streaming event to Server: {e}", exc_info=e
+                    f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}", exc_info=e
                 )
                 que.clear_acked_data(keep_latest=100000)
                 self.logger.debug("Cleared Acknowledged data. keep_latest=100000")
