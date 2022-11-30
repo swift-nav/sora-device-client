@@ -119,20 +119,22 @@ class SoraDeviceClient:
         ack_failed = '9'
     """
 
-    def _state_stream_sender(self, que: SQLiteAckQueue):
-        def iter_ack_queue():
-            while True:
-                x = que.get()
-                que.clear_acked_data(keep_latest=500)
-                # if there is an error in stream, this yield will never complete.
-                yield x
-                preId = que.ack(x)
-                self.logger.debug(f"Acknowledged queue itemId:  {preId}")
+    def iter_ack_queue(self, que: SQLiteAckQueue):
+        while True:
+            x = que.get()
+            que.clear_acked_data(keep_latest=500)
+            # if there is an error in stream, this yield will never complete.
+            yield x
+            preId = que.ack(x)
+            self.logger.debug(f"Acknowledged queue itemId:  {preId}")
 
+    def _state_stream_sender(self, que: SQLiteAckQueue):
         while True:
             self.logger.debug("opening StreamDeviceState")
             try:
-                self._stub.StreamDeviceState(customItr(), metadata=self.metadata)
+                self._stub.StreamDeviceState(
+                    self.iter_ack_queue(que), metadata=self.metadata
+                )
             except grpc._channel._InactiveRpcError as e:
                 if e.code() == grpc.StatusCode.UNAVAILABLE:
                     self.logger.error(
@@ -144,7 +146,7 @@ class SoraDeviceClient:
                         f"Could not connect to server for an unexpected reason: {e}",
                         exc_info=e,
                     )
-                # Whenever there is server exceptions, if you want to keep more data on disk, bump up the keep_latest
+                # Whenever there is server exceptions, if you want to keep more data on disk, bump up the keep_latest = num of rows
                 que.clear_acked_data(keep_latest=100000)
                 self.logger.debug("Cleared Acknowledged data. keep_latest=100000")
                 # Update ack status. This is needed as the queue acknowledgements were not persisted in-order on
