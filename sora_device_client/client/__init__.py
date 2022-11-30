@@ -119,7 +119,7 @@ class SoraDeviceClient:
         ack_failed = '9'
     """
 
-    def iter_ack_queue(self, que : SQLiteAckQueue):
+    def iter_ack_queue(self, que: SQLiteAckQueue):
         while True:
             x = que.get()
             que.clear_acked_data(keep_latest=500)
@@ -158,7 +158,7 @@ class SoraDeviceClient:
                 )
             self.logger.warn("StreamDeviceState connection closed, Retrying...")
 
-    def _event_stream_sender(self, que : SQLiteAckQueue):
+    def _event_stream_sender(self, que: SQLiteAckQueue):
         for x in self.iter_ack_queue(que):
             try:
                 self._stub.AddEvent(x, metadata=self.metadata)
