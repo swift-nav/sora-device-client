@@ -68,7 +68,7 @@ class SoraDeviceClient:
         )
         self._event_worker = threading.Thread(
             target=self._event_stream_sender,
-            args=(iter(self._event_queue.get, None),),
+            args=(self._event_queue,),
             daemon=True,
         )
         self._chan = None
@@ -119,7 +119,7 @@ class SoraDeviceClient:
         ack_failed = '9'
     """
 
-    def iter_ack_queue(self, que: SQLiteAckQueue):
+    def iter_ack_queue(self, que : SQLiteAckQueue):
         while True:
             x = que.get()
             que.clear_acked_data(keep_latest=500)
@@ -156,16 +156,19 @@ class SoraDeviceClient:
                 self.logger.error(
                     f"Unexpected error when streaming state to server: {e}", exc_info=e
                 )
-            self.logger.warn("StreamDeviceState connection closed, retrying...")
+            self.logger.warn("StreamDeviceState connection closed, Retrying...")
 
-    def _event_stream_sender(self, itr):
-        for x in itr:
+    def _event_stream_sender(self, que : SQLiteAckQueue):
+        for x in self.iter_ack_queue(que):
             try:
                 self._stub.AddEvent(x, metadata=self.metadata)
             except Exception as e:
-                self.logger.warn(
-                    f"Unexpected error when streaming event to server: {e}"
+                self.logger.error(
+                    f"Unexpected error when streaming event to Server: {e}", exc_info=e
                 )
+                que.clear_acked_data(keep_latest=100000)
+                self.logger.debug("Cleared Acknowledged data. keep_latest=100000")
+                que.resume_unack_tasks()
 
     def add_event(self, event_type, payload=None, lat=None, lon=None):
         payload = payload or {}
