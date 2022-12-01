@@ -156,7 +156,8 @@ class SoraDeviceClient:
                     f"Unexpected error when streaming state to server {self.server_config.host}:{self.server_config.port} : {e}",
                     exc_info=e,
                 )
-            self.logger.warn("StreamDeviceState connection closed, retrying...")
+            self.logger.warn("StreamDeviceState connection closed, retrying after 5 seconds...")
+            time.sleep(5)
 
     def _event_stream_sender(self, que: SQLiteAckQueue):
         while True:
@@ -167,7 +168,8 @@ class SoraDeviceClient:
                 self.logger.error(
                     f"Unexpected error when streaming state to server {self.server_config.host}:{self.server_config.port} : {e}"
                 )
-            self.logger.warn("AddEvent loop finished (probably because of connection problems), retrying...")
+            self.logger.warn("AddEvent loop finished (probably because of connection problems), retrying after 5 seconds...")
+            time.sleep(5)
 
     def add_event(self, event_type, payload=None, lat=None, lon=None):
         payload = payload or {}
