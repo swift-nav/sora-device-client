@@ -120,9 +120,14 @@ class SoraDeviceClient:
     """
 
     def iter_ack_queue(self, que: SQLiteAckQueue):
+        # Change any status='UNACK' to status='READY'. Without this, UNACK'd items would not be
+        # picked up until we restart the process, and this would result in devicestates being sent
+        # out-of-order.
+        que.resume_unack_tasks()
+        # Clear any acked data from disk, we don't need it anymore.
+        que.clear_acked_data(keep_latest=500)
         while True:
             x = que.get()
-            que.clear_acked_data(keep_latest=500)
             # if there is an error in stream, this yield will never complete.
             yield x
             preId = que.ack(x)
@@ -147,12 +152,7 @@ class SoraDeviceClient:
                         f"Could not connect to Server {self.server_config.host}:{self.server_config.port} for an unexpected reason: {e}",
                         exc_info=e,
                     )
-                # Whenever there is server exceptions, if you want to keep more data on disk, bump up the keep_latest = num of rows
-                que.clear_acked_data(keep_latest=100000)
-                self.logger.debug("Cleared Acknowledged data. keep_latest=100000")
-                # Update ack status. This is needed as the queue acknowledgements were not persisted in-order on
-                # exception, and un-acknowledged data was never picked up by the queue consumer when the exceptions are fixed.
-                que.resume_unack_tasks()
+
             except Exception as e:
                 self.logger.error(
                     f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}",
@@ -169,9 +169,6 @@ class SoraDeviceClient:
                     f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}",
                     exc_info=e,
                 )
-                que.clear_acked_data(keep_latest=100000)
-                self.logger.debug("Cleared Acknowledged data. keep_latest=100000")
-                que.resume_unack_tasks()
 
     def add_event(self, event_type, payload=None, lat=None, lon=None):
         payload = payload or {}
