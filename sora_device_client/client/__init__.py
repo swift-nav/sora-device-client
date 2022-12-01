@@ -144,21 +144,19 @@ class SoraDeviceClient:
                 self.logger.info(f"grpc StatusCode: {e.code}")
                 if e.code() == grpc.StatusCode.UNAVAILABLE:
                     self.logger.error(
-                        f"Server {self.server_config.host}:{self.server_config.port} Unavailable. This is expected during a deploy or when server is down : {e}",
-                        # exc_info=e,
+                        f"Server {self.server_config.host}:{self.server_config.port} unavailable. This is expected during a deploy or when server is down : {e}"
                     )
                 else:
                     self.logger.error(
-                        f"Could not connect to Server {self.server_config.host}:{self.server_config.port} for an unexpected reason: {e}",
-                        exc_info=e,
+                        f"Could not connect to server {self.server_config.host}:{self.server_config.port}: {e}"
                     )
 
             except Exception as e:
                 self.logger.error(
-                    f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}",
+                    f"Unexpected error when streaming state to server {self.server_config.host}:{self.server_config.port} : {e}",
                     exc_info=e,
                 )
-            self.logger.warn("StreamDeviceState connection closed, Retrying...")
+            self.logger.warn("StreamDeviceState connection closed, retrying...")
 
     def _event_stream_sender(self, que: SQLiteAckQueue):
         while True:
@@ -167,8 +165,7 @@ class SoraDeviceClient:
                     self._stub.AddEvent(x, metadata=self.metadata)
             except Exception as e:
                 self.logger.error(
-                    f"Unexpected error when streaming state to Server {self.server_config.host}:{self.server_config.port} : {e}",
-                    exc_info=e,
+                    f"Unexpected error when streaming state to server {self.server_config.host}:{self.server_config.port} : {e}"
                 )
             self.logger.warn("AddEvent loop finished (probably because of connection problems), retrying...")
 
