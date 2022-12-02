@@ -1,10 +1,9 @@
-import logging
+import math
 import grpc
-import os
-import queue
 import signal
 import threading
-from persistqueue import SQLiteAckQueue
+import time
+import persistqueue
 
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -12,6 +11,7 @@ from dataclasses import dataclass
 from google.protobuf.struct_pb2 import Struct
 from google.protobuf.timestamp_pb2 import Timestamp
 from logging import getLogger, Logger
+from persistqueue import SQLiteAckQueue
 from rich import print
 
 import sora.v1beta.common_pb2 as common_pb
@@ -71,6 +71,7 @@ class SoraDeviceClient:
             args=(self._event_queue,),
             daemon=True,
         )
+        self._stop = threading.Event()
         self._chan = None
         self._stub = None
 
@@ -110,6 +111,18 @@ class SoraDeviceClient:
         print(f"Sending state as device {self.device_config.device_name} to project.")
         # TODO: print urls of all projects the device is sending state to
 
+    def stop(self, timeout: int):
+        self._stop.set()
+        zero = time.monotonic()
+        self._state_worker.join(timeout)
+        if self._state_worker.is_alive():
+            raise TimeoutError(f"Failed to finish requests in {timeout} seconds!")
+        elapsed = time.monotonic() - zero
+        remaining = max(timeout - elapsed, 0)
+        self._event_worker.join(timeout=remaining)
+        if self._event_worker.is_alive():
+            raise TimeoutError(f"Failed to finish requests in {timeout} seconds!")
+
     """ 
     SQLiteAckQueue status
         inited = '0'
@@ -119,27 +132,95 @@ class SoraDeviceClient:
         ack_failed = '9'
     """
 
-    def iter_ack_queue(self, que: SQLiteAckQueue):
+    @contextmanager
+    def iter_ack_queue(self, que: SQLiteAckQueue, max_pending_acks=math.inf):
+        """
+        This is used to iterate through items in an queue.
+        It is to be used as a `with` statement: if the contents of the `with` block
+        complete successfully, the items will be acknowledged as successful. Example:
+        ```
+            with iter_ack_queue(queue) as items:
+                for item in items:
+                    stream.push(item)
+                stream.close() # maybe this will raise BadConnection()
+
+            # if the block finished, then the items are acknowledged on the queue,
+            # and the count is available in len(items)
+            assert len(items) > 0
+
+            # if the block threw, then the items are not acknowledged, (and the thrown
+            # exception will propagate as normal for you to deal with)
+        ```
+
+        If you pass `max_pending_acks`, then at most `max_pending_acks` items will
+        be yielded from the queue, to give whatever success-ensuring functions you have
+        in your `with` block a chance to execute.
+        """
         # Change any status='UNACK' to status='READY'. Without this, UNACK'd items would not be
         # picked up until we restart the process, and this would result in devicestates being sent
         # out-of-order.
         que.resume_unack_tasks()
         # Clear any acked data from disk, we don't need it anymore.
         que.clear_acked_data(keep_latest=500)
-        while True:
-            x = que.get()
-            # if there is an error in stream, this yield will never complete.
-            yield x
-            preId = que.ack(x)
-            self.logger.debug(f"Acknowledged queue itemId:  {preId}")
+
+        yielded = []
+
+        def iterator():
+            while len(yielded) < max_pending_acks and not self._stop.is_set():
+                try:
+                    entry = que.get(raw=True, timeout=1)
+                except persistqueue.Empty:
+                    # could just .get() and block with no timeout, but then
+                    # it's hard to stop cleanly because we can't wait for
+                    # self._stop.
+                    continue
+                id, x = entry["pqid"], entry["data"]
+                yielded.append(id)
+                # if there is an error in stream, this yield will never complete.
+                yield x
+
+        class WithLen:
+            def __init__(self, it):
+                self.it = it
+                self.acked = None
+
+            def __len__(self):
+                return self.acked
+
+            def __iter__(self):
+                yield from self.it
+
+        it = WithLen(iterator())
+
+        yield it
+
+        # if we reach here, no exception has occured, so we ack everything.
+        for id in yielded:
+            que.ack(id=id)
+            self.logger.debug(f"Acknowledged queue itemId: {id}")
+        it.acked = len(yielded)
 
     def _state_stream_sender(self, que: SQLiteAckQueue):
-        while True:
+        while not self._stop.is_set():
             self.logger.debug("opening StreamDeviceState")
             try:
-                self._stub.StreamDeviceState(
-                    self.iter_ack_queue(que), metadata=self.metadata
+                with self.iter_ack_queue(que, max_pending_acks=50) as items:
+
+                    def log_items():
+                        for x in items:
+                            self.logger.info(
+                                "Sending state for device %s:",
+                                self.device_config.device_id,
+                            )
+                            yield x
+
+                    self._stub.StreamDeviceState(log_items(), metadata=self.metadata)
+                self.logger.info(
+                    "Confirmed receipt of %d states for device %s",
+                    len(items),
+                    self.device_config.device_id,
                 )
+
             except grpc._channel._InactiveRpcError as e:
                 self.logger.info(f"grpc StatusCode: {e.code}")
                 if e.code() == grpc.StatusCode.UNAVAILABLE:
@@ -156,19 +237,42 @@ class SoraDeviceClient:
                     f"Unexpected error when streaming state to server {self.server_config.host}:{self.server_config.port} : {e}",
                     exc_info=e,
                 )
-            self.logger.warn("StreamDeviceState connection closed, retrying after 5 seconds...")
+
+            else:
+                # finished with no error, this is expected so we loop with no wait
+                continue
+            self.logger.warn(
+                "StreamDeviceState connection closed, retrying after 5 seconds..."
+            )
             time.sleep(5)
 
     def _event_stream_sender(self, que: SQLiteAckQueue):
-        while True:
+        while not self._stop.is_set():
+            # a naive person might think we could ack immediately after AddEvent finishes without error,
+            # but then that person wouldn't have spent four hours of horror reading through the grpc github
+            # issue tracker.
             try:
-                for x in self.iter_ack_queue(que):
-                    self._stub.AddEvent(x, metadata=self.metadata)
+                with self.iter_ack_queue(que, max_pending_acks=10) as items:
+                    for x in items:
+                        self.logger.info(
+                            "Sending event for device %s:", self.device_config.device_id
+                        )
+                        self._stub.AddEvent(x, metadata=self.metadata)
+                self.logger.info(
+                    "Confirmed receipt of %d events for device %s",
+                    len(items),
+                    self.device_config.device_id,
+                )
             except Exception as e:
                 self.logger.error(
                     f"Unexpected error when streaming state to server {self.server_config.host}:{self.server_config.port} : {e}"
                 )
-            self.logger.warn("AddEvent loop finished (probably because of connection problems), retrying after 5 seconds...")
+            else:
+                # finished with no error, this is expected so we loop with no wait
+                continue
+            self.logger.warn(
+                "AddEvent loop finished (probably because of connection problems), retrying after 5 seconds..."
+            )
             time.sleep(5)
 
     def add_event(self, event_type, payload=None, lat=None, lon=None):
@@ -184,7 +288,7 @@ class SoraDeviceClient:
             type=event_type,
             payload=payload_pb,
         )
-        self.logger.info("Sending event for device %s:", self.device_config.device_id)
+        self.logger.debug("Queing event for device %s:", self.device_config.device_id)
         self.logger.debug(event)
         self._event_queue.put(device_pb2.StreamEventRequest(event=event))
 
@@ -205,6 +309,6 @@ class SoraDeviceClient:
             pos=common_pb.Position(lat=lat, lon=lon),
             user_data=state_pb,
         )
-        self.logger.info("Sending state for device %s:", self.device_config.device_id)
+        self.logger.debug("Queuing state for device %s:", self.device_config.device_id)
         self.logger.debug(device_state)
         self._state_queue.put(device_pb2.StreamDeviceStateRequest(state=device_state))
