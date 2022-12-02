@@ -56,7 +56,8 @@ def start():
                             lon=loc.position.lon,
                         )
                 except KeyboardInterrupt:
-                    logger.info("Terminating state stream.")
+                    logger.info("Terminating state stream..")
+                    client.stop(timeout=5)
                     raise typer.Exit(code=0)
     except ConfigValueError as e:
         logger.error(e)

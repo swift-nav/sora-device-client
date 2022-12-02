@@ -17,3 +17,6 @@ sora: buf.gen.yaml .api-version
 .PHONY: clean
 clean:
 	git clean -ffidx -e Session.vim
+
+lint:
+	poetry run black --check .
