@@ -26,13 +26,39 @@ class ExitMain(Exception):
     pass
 
 
-@contextmanager
-def device_service_channel(cfg: ServerConfig) -> Generator[grpc.Channel, None, None]:
+def _device_service_channel(cfg: ServerConfig) -> grpc.Channel:
+    """
+    Creates a GRPC channel to the device service.
+    """
+    logger = getLogger(__name__ + ".grpc_channel")
+
+    server_opts = [
+        ("grpc.keepalive_time_ms", 30_000),
+        ("grpc.keepalive_timeout_ms", 10_000),
+    ]
     if cfg.disable_tls:
-        chan = grpc.insecure_channel(cfg.target())
+        chan = grpc.insecure_channel(cfg.target(), server_opts)
     else:
         creds = grpc.ssl_channel_credentials()
-        chan = grpc.secure_channel(cfg.target(), creds)
+        chan = grpc.secure_channel(cfg.target(), creds, server_opts)
+
+    def chan_health_listener(state):
+        if state in {
+            grpc.ChannelConnectivity.TRANSIENT_FAILURE,
+            grpc.ChannelConnectivity.SHUTDOWN,
+        }:
+            logger.warn("GRPC channel state: %s", state)
+        else:
+            logger.debug("GRPC channel state: %s", state)
+
+    chan.subscribe(chan_health_listener)
+
+    return chan
+
+
+@contextmanager
+def device_service_channel(cfg: ServerConfig) -> Generator[grpc.Channel, None, None]:
+    chan = _device_service_channel(cfg)
     grpc.channel_ready_future(chan).result(timeout=10)
     try:
         yield chan
@@ -79,11 +105,7 @@ class SoraDeviceClient:
         target = self.server_config.target()
         self.logger.info(f"Connecting to Sora server @ {target}")
 
-        if self.server_config.disable_tls:
-            self._chan = grpc.insecure_channel(target)
-        else:
-            creds = grpc.ssl_channel_credentials()
-            self._chan = grpc.secure_channel(target, creds)
+        self._chan = _device_service_channel(self.server_config)
 
         try:
             grpc.channel_ready_future(self._chan).result(timeout=10)
@@ -112,16 +134,29 @@ class SoraDeviceClient:
         # TODO: print urls of all projects the device is sending state to
 
     def stop(self, timeout: int):
-        self._stop.set()
-        zero = time.monotonic()
-        self._state_worker.join(timeout)
-        if self._state_worker.is_alive():
-            raise TimeoutError(f"Failed to finish requests in {timeout} seconds!")
-        elapsed = time.monotonic() - zero
-        remaining = max(timeout - elapsed, 0)
-        self._event_worker.join(timeout=remaining)
-        if self._event_worker.is_alive():
-            raise TimeoutError(f"Failed to finish requests in {timeout} seconds!")
+        try:
+            self._stop.set()
+            zero = time.monotonic()
+
+            self._state_worker.join(timeout)
+            if self._state_worker.is_alive():
+                raise TimeoutError(f"Failed to finish requests in {timeout} seconds!")
+
+            elapsed = time.monotonic() - zero
+            remaining = max(timeout - elapsed, 0)
+            self._event_worker.join(timeout=remaining)
+            if self._event_worker.is_alive():
+                raise TimeoutError(f"Failed to finish requests in {timeout} seconds!")
+        finally:
+            states = self._state_queue.ready_count() + self._state_queue.unack_count()
+            events = self._event_queue.ready_count() + self._event_queue.unack_count()
+            if states + events > 0:
+                self.logger.warn(
+                    "There are %d states and %d events that may not have been received. "
+                    "They will be re-tried next time you run `sora`.",
+                    states,
+                    events,
+                )
 
     """ 
     SQLiteAckQueue status
@@ -179,6 +214,9 @@ class SoraDeviceClient:
                 # if there is an error in stream, this yield will never complete.
                 yield x
 
+        # this might be overcomplicating things.. I want the consumer to be able
+        # to call len(items) to get how many things got acked, just for logging
+        # purposes.
         class WithLen:
             def __init__(self, it):
                 self.it = it
@@ -221,20 +259,18 @@ class SoraDeviceClient:
                     self.device_config.device_id,
                 )
 
-            except grpc._channel._InactiveRpcError as e:
-                self.logger.info(f"grpc StatusCode: {e.code}")
-                if e.code() == grpc.StatusCode.UNAVAILABLE:
-                    self.logger.error(
-                        f"Server {self.server_config.host}:{self.server_config.port} unavailable. This is expected during a deploy or when server is down : {e}"
-                    )
-                else:
-                    self.logger.error(
-                        f"Could not connect to server {self.server_config.host}:{self.server_config.port}: {e}"
-                    )
+            except grpc.RpcError as e:
+                self.logger.error(
+                    "Could not connect to server %s. Status code: %s",
+                    f"{self.server_config.host}:{self.server_config.port}",
+                    e.code(),
+                )
+                self.logger.debug("grpc exception:", exc_info=e)
 
             except Exception as e:
                 self.logger.error(
-                    f"Unexpected error when streaming state to server {self.server_config.host}:{self.server_config.port} : {e}",
+                    "Unexpected error when streaming state to server %s",
+                    f"{self.server_config.host}:{self.server_config.port}",
                     exc_info=e,
                 )
 
@@ -242,7 +278,7 @@ class SoraDeviceClient:
                 # finished with no error, this is expected so we loop with no wait
                 continue
             self.logger.warn(
-                "StreamDeviceState connection closed, retrying after 5 seconds..."
+                "StreamDeviceState finished (probably because of connection problems), retrying after 5 seconds..."
             )
             time.sleep(5)
 
@@ -263,9 +299,18 @@ class SoraDeviceClient:
                     len(items),
                     self.device_config.device_id,
                 )
+            except grpc.RpcError as e:
+                self.logger.error(
+                    "Could not connect to server %s. Status code: %s",
+                    f"{self.server_config.host}:{self.server_config.port}",
+                    e.code(),
+                )
+                self.logger.debug("grpc exception:", exc_info=e)
             except Exception as e:
                 self.logger.error(
-                    f"Unexpected error when streaming state to server {self.server_config.host}:{self.server_config.port} : {e}"
+                    "Unexpected error when sending events to server %s",
+                    f"{self.server_config.host}:{self.server_config.port}",
+                    exc_info=e,
                 )
             else:
                 # finished with no error, this is expected so we loop with no wait
