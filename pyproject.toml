@@ -10,7 +10,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-grpcio = "1.48.1" # must match version of grpc in buf.yaml
+grpcio = "1.51.1" # must match version of grpc in buf.yaml
 gtfs-realtime-bindings = "^0.0.7"
 requests = "^2.28.0"
 sbp = "^4.7.0"
