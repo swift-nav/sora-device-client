@@ -18,7 +18,7 @@ python-versions = ">=3.5"
 dev = ["cloudpickle", "coverage[toml] (>=5.0.2)", "furo", "hypothesis", "mypy (>=0.900,!=0.940)", "pre-commit", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "sphinx", "sphinx-notfound-page", "zope.interface"]
 docs = ["furo", "sphinx", "sphinx-notfound-page", "zope.interface"]
 tests = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "zope.interface"]
-tests_no_zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
+tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
 
 [[package]]
 name = "black"
@@ -58,7 +58,7 @@ optional = false
 python-versions = ">=3.6.0"
 
 [package.extras]
-unicode_backport = ["unicodedata2"]
+unicode-backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
@@ -327,7 +327,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "rich"
@@ -346,7 +346,7 @@ jupyter = ["ipywidgets (>=7.5.1,<8.0.0)"]
 
 [[package]]
 name = "sbp"
-version = "4.7.0"
+version = "4.9.0"
 description = "Python bindings for Swift Binary Protocol"
 category = "main"
 optional = false
@@ -442,7 +442,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "0b010be0526c3ecbb3ff2a0677037dfbceca97d3c9c5ad613bdea572be371ce7"
+content-hash = "27b8ddcbd468d7cf7f8fb0188a6adef53546fb22d0ca84318d214ccc0ccbb2b6"
 
 [metadata.files]
 appdirs = [
@@ -642,8 +642,8 @@ rich = [
     {file = "rich-12.5.1.tar.gz", hash = "sha256:63a5c5ce3673d3d5fbbf23cd87e11ab84b6b451436f1b7f19ec54b6bc36ed7ca"},
 ]
 sbp = [
-    {file = "sbp-4.7.0-py2.py3-none-any.whl", hash = "sha256:d4e2dfdbdab952bd593b58943d694d7bc6d6a21049b73db6157211afd994f4f1"},
-    {file = "sbp-4.7.0.tar.gz", hash = "sha256:a8080eb35de2ad000369f8ded52e9515892ce08f3c78283d959615e01d4dacd5"},
+    {file = "sbp-4.9.0-py2.py3-none-any.whl", hash = "sha256:1816606bce04bdf184918ec749d442292c0467112f4ba66eea0f10cb08d5656e"},
+    {file = "sbp-4.9.0.tar.gz", hash = "sha256:66b3b58465344ea3bf7865cd8f83ddb4a191bdca054304af3c8880e99fbcf377"},
 ]
 setuptools = [
     {file = "setuptools-65.6.3-py3-none-any.whl", hash = "sha256:57f6f22bde4e042978bcd50176fdb381d7c21a9efa4041202288d3737a0c6a54"},
