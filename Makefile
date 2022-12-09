@@ -21,6 +21,7 @@ clean:
 
 lint:
 	poetry run black --check .
+	poetry run mypy
 
 .PHONY: wheel
 wheel: sora

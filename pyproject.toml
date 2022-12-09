@@ -13,7 +13,7 @@ include = ["sora/**/*.py"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-grpcio = "1.48.1" # must match version of grpc in buf.yaml
+grpcio = "1.51.1" # must match version of grpc in buf.yaml
 gtfs-realtime-bindings = "^0.0.7"
 requests = "^2.28.0"
 sbp = "^4.7.0"
@@ -31,7 +31,12 @@ sora = "sora_device_client.cli:app"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
+mypy = "^0.991"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = "true"
+files = ["sora_device_client"]
