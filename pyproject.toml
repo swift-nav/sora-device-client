@@ -32,11 +32,24 @@ sora = "sora_device_client.cli:app"
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
 mypy = "^0.991"
+types-protobuf = "^4.21.0.2"
+mypy-protobuf = "^3.4.0"
+types-appdirs = "^1.4.3.1"
+types-requests = "^2.28.11.5"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
-strict = "true"
+strict = true
 files = ["sora_device_client"]
+
+[[tool.mypy.overrides]]
+module = [
+  "sbp.*",
+  "grpc",
+  "persistqueue",
+  "deepmerge"
+]
+ignore_missing_imports = true

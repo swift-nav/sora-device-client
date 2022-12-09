@@ -1,5 +1,6 @@
 import logging
 
+from typing import *
 from ..exceptions import ConfigValueError
 
 log = logging.getLogger(__name__)
@@ -9,7 +10,11 @@ class DriverConfigValueError(Exception):
     pass
 
 
-def tcp_driver_from_config(config):
+if TYPE_CHECKING:
+    from sbp.client.drivers.base_driver import BaseDriver
+
+
+def tcp_driver_from_config(config: Dict[str, Any]) -> "BaseDriver":
     tcp_host = str(config["host"])
     tcp_port = int(config["port"])
     log.info(f"Using TCP driver: {tcp_host}:{tcp_port}")
@@ -18,7 +23,7 @@ def tcp_driver_from_config(config):
     return TCPDriver(tcp_host, tcp_port)
 
 
-def serial_driver_from_config(config):
+def serial_driver_from_config(config: Dict[str, Any]) -> "BaseDriver":
     port = config["port"]
     baud = config["baud"]
     log.info(f"Using Serial driver: {port} @ {baud}")
@@ -30,7 +35,7 @@ def serial_driver_from_config(config):
 DRIVERS = {"tcp": tcp_driver_from_config, "serial": serial_driver_from_config}
 
 
-def driver_from_config(config):
+def driver_from_config(config: Dict[str, Any]) -> "BaseDriver":
     drivers_cfg = config["driver"]
     if len(drivers_cfg) != 1:
         raise ConfigValueError("Exactly one driver should be specified")

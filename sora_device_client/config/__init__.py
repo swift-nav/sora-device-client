@@ -29,11 +29,11 @@ def read_data() -> tomlkit.TOMLDocument:
         )
 
 
-def delete_data_file():
+def delete_data_file() -> None:
     DATA_FILE_PATH.unlink(missing_ok=True)
 
 
-def write_data(data: tomlkit.TOMLDocument):
+def write_data(data: tomlkit.TOMLDocument) -> None:
     DATA_FILE_PATH.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     with os.fdopen(
         os.open(DATA_FILE_PATH, os.O_CREAT | os.O_RDWR | os.O_TRUNC, 0o600),

@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 app = typer.Typer()
 
 
-def setup_logger(verbose=False, debug=False):
+def setup_logger(verbose: bool = False, debug: bool = False) -> None:
     logging.basicConfig(
         level=(
             logging.DEBUG if debug else logging.INFO if verbose else logging.WARNING
@@ -20,7 +20,7 @@ def setup_logger(verbose=False, debug=False):
 
 
 @app.callback()
-def callback(verbose: bool = False, debug: bool = False):
+def callback(verbose: bool = False, debug: bool = False) -> None:
     """
     Sora Device Client
 

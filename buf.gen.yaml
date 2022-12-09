@@ -4,7 +4,9 @@ managed:
 plugins:
   - plugin: buf.build/protocolbuffers/python:v21.11
     out: .
-  - plugin: buf.build/protocolbuffers/pyi:v21.11
+  - plugin: mypy
+    out: .
+  - plugin: mypy_grpc
     out: .
 
     # remote plugin version should be kept in sync with version of grpcio in pyproject.toml

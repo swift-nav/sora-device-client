@@ -11,7 +11,7 @@ from sora_device_client.exceptions import ConfigValueError, DataFileNotFound
 logger = logging.getLogger(__name__)
 
 
-def start():
+def start() -> None:
     """
     Start the sora-device-client and stream location data to the Sora Server.
     """

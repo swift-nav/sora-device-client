@@ -16,5 +16,5 @@ class ServerConfig:
     def target(self) -> str:
         return f"{self.host}:{self.port}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self._parsed_url.geturl()}"
