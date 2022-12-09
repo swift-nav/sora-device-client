@@ -26,6 +26,12 @@ persist-queue = "^0.8.0"
 [tool.poetry.dev-dependencies]
 pytest = "^7.1"
 
+[tool.poetry.group.codegen]
+optional = true
+
+[tool.poetry.group.codegen.dependencies]
+mypy-protobuf = "^3.4.0"
+
 [tool.poetry.scripts]
 sora = "sora_device_client.cli:app"
 
@@ -33,7 +39,6 @@ sora = "sora_device_client.cli:app"
 black = "^22.10.0"
 mypy = "^0.991"
 types-protobuf = "^4.21.0.2"
-mypy-protobuf = "^3.4.0"
 types-appdirs = "^1.4.3.1"
 types-requests = "^2.28.11.5"
 
