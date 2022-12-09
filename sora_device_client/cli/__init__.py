@@ -1,5 +1,7 @@
 import logging
 import typer
+import sys
+from typing import *
 
 from rich.logging import RichHandler
 
@@ -19,8 +21,23 @@ def setup_logger(verbose: bool = False, debug: bool = False) -> None:
     )
 
 
+def _version(_val: bool) -> None:
+    if not _val:
+        return
+    from .. import __version__
+
+    print(f"Sora device client version: {__version__}", file=sys.stderr)
+    raise typer.Exit(0)
+
+
 @app.callback()
-def callback(verbose: bool = False, debug: bool = False) -> None:
+def callback(
+    verbose: bool = typer.Option(False, "--verbose"),
+    debug: bool = typer.Option(False, "--debug"),
+    version: Optional[bool] = typer.Option(
+        None, "--version", callback=_version, is_eager=True
+    ),
+) -> None:
     """
     Sora Device Client
 
