@@ -7,8 +7,8 @@ build: sora .venv
 shell: build
 	poetry shell
 
-sora: buf.gen.yaml .api-version
-	buf generate buf.build/swift-nav/sora-api:$(SORA_API_REF)
+sora: buf.gen.yaml .api-version .venv/bin/protoc-gen-mypy
+	poetry run buf generate buf.build/swift-nav/sora-api:$(SORA_API_REF)
 	touch sora
 
 .venv: sora pyproject.toml poetry.toml poetry.lock
