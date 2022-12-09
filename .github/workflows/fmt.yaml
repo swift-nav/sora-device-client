@@ -53,3 +53,9 @@ jobs:
     - run: |
         poetry version $(poetry version -s)+$(git branch --show-current | tr -d '+~/ ')-$(git rev-parse --short HEAD)
     - run: make wheel
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: sora.whl
+        path: |
+          dist/*.whl
