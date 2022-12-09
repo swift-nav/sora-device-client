@@ -5,7 +5,7 @@ from typing import *
 
 from rich.logging import RichHandler
 
-from . import login, logout, start
+from . import login, logout, start, paths
 
 log = logging.getLogger(__name__)
 app = typer.Typer()
@@ -49,3 +49,4 @@ def callback(
 app.command()(login.login)
 app.command()(logout.logout)
 app.command()(start.start)
+app.command()(paths.paths)
