@@ -8,7 +8,6 @@ import persistqueue
 from typing import *
 from numbers import Number
 from abc import ABC
-from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from google.protobuf.struct_pb2 import Struct
