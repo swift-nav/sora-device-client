@@ -20,6 +20,7 @@ import sora.device.v1beta.service_pb2 as device_pb2
 
 from sora_device_client.config.device import DeviceConfig
 from sora_device_client.config.server import ServerConfig
+from sora_device_client.config import DATA_DIR
 
 
 class ExitMain(Exception):
@@ -81,10 +82,10 @@ class SoraDeviceClient:
         when the connectivity is restored and sent to server.
         """
         self._state_queue = SQLiteAckQueue(
-            "../state", multithreading=True, auto_commit=True
+            DATA_DIR.joinpath("states"), multithreading=True, auto_commit=True
         )
         self._event_queue = SQLiteAckQueue(
-            "../event", multithreading=True, auto_commit=True
+            DATA_DIR.joinpath("events"), multithreading=True, auto_commit=True
         )
         self.metadata = [("authorization", f"Bearer {self.device_config.access_token}")]
         self._state_worker = threading.Thread(

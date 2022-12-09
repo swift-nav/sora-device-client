@@ -9,6 +9,7 @@ shell: build
 
 sora: buf.gen.yaml .api-version
 	buf generate buf.build/swift-nav/sora-api:$(SORA_API_REF)
+	touch sora
 
 .venv: sora pyproject.toml poetry.toml poetry.lock
 	poetry lock --check
@@ -20,3 +21,7 @@ clean:
 
 lint:
 	poetry run black --check .
+
+.PHONY: wheel
+wheel: sora
+	poetry build -f wheel
