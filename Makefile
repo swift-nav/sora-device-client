@@ -24,7 +24,7 @@ sora: buf.gen.yaml .api-version .venv/bin/protoc-gen-mypy
 clean:
 	git clean -ffidx -e Session.vim
 
-lint:
+lint: .venv
 	poetry run black --check .
 	poetry run mypy
 
