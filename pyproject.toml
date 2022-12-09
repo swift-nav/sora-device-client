@@ -4,27 +4,29 @@ version = "0.1.0"
 description = "A client to stream device location data to a sever for the SORA api"
 authors = ["Swift Navigation <developers@swift-nav.com>"]
 readme = "README.md"
-packages = [
-  { include = "sora" },
-  { include = "sora_device_client" }
-]
+packages = [{ include = "sora" }, { include = "sora_device_client" }]
 # poetry excludes stuff in .gitignore, so we need to make sure it gets picked up
 include = ["sora/**/*.py"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-grpcio = "1.51.1" # must match version of grpc in buf.yaml
+grpcio = "1.51.1"                                # must match version of grpc in buf.yaml
 gtfs-realtime-bindings = "^0.0.7"
 requests = "^2.28.0"
 sbp = "^4.7.0"
 tomlkit = "^0.11.4"
 appdirs = "^1.4.4"
-typer = {extras = ["all"], version = "^0.6.1"}
+typer = { extras = ["all"], version = "^0.6.1" }
 deepmerge = "^1.0.1"
 persist-queue = "^0.8.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^7.1"
+black = "^22.10.0"
+mypy = "^0.991"
+types-protobuf = "^4.21.0.2"
+types-appdirs = "^1.4.3.1"
+types-requests = "^2.28.11.5"
 
 [tool.poetry.group.codegen]
 optional = true
@@ -35,13 +37,6 @@ mypy-protobuf = "^3.4.0"
 [tool.poetry.scripts]
 sora = "sora_device_client.cli:app"
 
-[tool.poetry.group.dev.dependencies]
-black = "^22.10.0"
-mypy = "^0.991"
-types-protobuf = "^4.21.0.2"
-types-appdirs = "^1.4.3.1"
-types-requests = "^2.28.11.5"
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -51,10 +46,5 @@ strict = true
 files = ["sora_device_client"]
 
 [[tool.mypy.overrides]]
-module = [
-  "sbp.*",
-  "grpc",
-  "persistqueue",
-  "deepmerge"
-]
+module = ["sbp.*", "grpc", "persistqueue", "deepmerge"]
 ignore_missing_imports = true
