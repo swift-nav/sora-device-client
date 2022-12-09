@@ -1,7 +1,7 @@
 from ..config import delete_data_file
 
 
-def logout():
+def logout() -> None:
     """
     Log the device out of Sora Server.
     """

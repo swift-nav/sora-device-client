@@ -24,7 +24,7 @@ def login(
         the default value of {DEFAULT_SERVER_URL} be used.
         """,
     ),
-):
+) -> None:
     """
     Log into Sora Server.
 

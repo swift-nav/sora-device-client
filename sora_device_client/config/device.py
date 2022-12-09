@@ -1,5 +1,6 @@
 import json
 
+from typing import *
 from functools import cached_property
 from base64 import b64decode
 from dataclasses import dataclass
@@ -11,13 +12,13 @@ class DeviceConfig:
     access_token: str
 
     @cached_property
-    def _extracted_claims(self) -> dict:
+    def _extracted_claims(self) -> Dict[str, Any]:
         dat = self.access_token
         return extract_claims(dat)
 
     @cached_property
     def app_url(self) -> str:
-        return self._extracted_claims["app_url"]
+        return str(self._extracted_claims["app_url"])
 
     @cached_property
     def device_id(self) -> UUID:
@@ -25,10 +26,10 @@ class DeviceConfig:
 
     @cached_property
     def device_name(self) -> str:
-        return self._extracted_claims["device_name"]
+        return str(self._extracted_claims["device_name"])
 
 
-def extract_claims(jwt: str) -> dict:
+def extract_claims(jwt: str) -> Dict[str, Any]:
     """
     Given a JWT from the Auth Server that is issued to this device as part of a
     Device Authorization Flow, this function will extract the claim
@@ -45,7 +46,7 @@ def extract_claims(jwt: str) -> dict:
     payload = jwt.split(".")[1]
     padded = pad_to_multiple_of(4, "=", payload)
     decoded = b64decode(padded)
-    return json.loads(decoded)
+    return dict(json.loads(decoded))
 
 
 def pad_to_multiple_of(n: int, pad: str, input: str) -> str:

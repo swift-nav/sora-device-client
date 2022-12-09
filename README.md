@@ -27,6 +27,7 @@ The Sora Device Client consists of:
  - A Python client library - for deeper integration and customization
 
 # Installing
+
 ## Dependencies
 
 You should only need to follow these steps once per machine you are setting up to run the sora-device-client on.
@@ -36,69 +37,91 @@ You will most likely need a package manager to install the other dependencies. U
 
 For macOS, it is recommend to use [homebrew](https://brew.sh/). For windows, something like [chocolately](https://chocolatey.org/) will do.
 
-
-### Buf
-
-The Sora API uses a gRPC interface and the API libraries are built by
-[buf.build](https://buf.build/).
-
-This requires the `buf` tool. Full installation instructions and options are
-[here](https://docs.buf.build/installation), or simply
-```bash
-brew install bufbuild/buf/buf
-```
-
-Then the api libraries can be generated with:
-```bash
-make
-```
-
 ### Python Interpreter
 You need to install python 3.10. See <https://www.python.org/downloads/> for download instructions.
 On macOS, you can use homebrew as well:
 ```bash
 brew install python@3.10
 ```
-Although we recommend using something like [pyenv](https://github.com/pyenv/pyenv)
-or [asdf](https://asdf-vm.com/) to manage your python versions.
 
-### Python Dependencies
+## Option 1) Install with `pip` from PyPI.
 
-We manage python dependencies with [Poetry](https://python-poetry.org/).
-They are recorded in `pyproject.toml`. Note that there are dev and prod dependencies.
-You will need to install the poetry cli to use it. On macOS this may be done with homebrew.
-```bash
-brew install poetry
+~~NOT YET FINALIZED~~
+
+## Option 2) Install with `pip` from Github artifact.
+
+Wheels are built with Github Actions. You can get the latest run by going to
+
+https://github.com/swift-nav/sora-device-client/actions/workflows/fmt.yaml?query=branch%3Amain
+
+, clicking the **first item** there, going to **Artifacts**, and downloading **sora.whl**.
+
+If you unzip `sora.whl.zip`, you'll see a single `.whl` file. Install it with `pip`:
+
+```sh
+unzip sora.whl.zip
+pip install sora_device_client-*-py3-none-any.whl
 ```
-For platform independent installation instruction, see <https://python-poetry.org/docs/#installing-with-pipx>. Note that asdf can also manage poetry installations: <https://github.com/asdf-community/asdf-poetry>.
 
-And then install the dependencies:
+## Option 3) Install from this checked-out repo.
+
+This requires the `buf` tool. Full installation instructions and options are
+[here](https://docs.buf.build/installation), or simply on Mac/Linux with Brew with
 ```bash
-poetry install
+brew install bufbuild/buf/buf
 ```
+
+Once `buf` is installed,
+
+```sh
+# check out this repo,
+git clone github.com/sora/sora-device-client
+cd sora-device-client
+
+# generate code,
+make sora
+
+# install,
+pip install .
+
+# and check it works.
+sora --version
+```
+
 
 # Command-Line Client
 
 ## Configuration file
-Copy the default config file to one of the locations in the table below.
-| OS                    | Path                                                                                               |
-|-----------------------|----------------------------------------------------------------------------------------------------|
-| MacOS:                | `~/Library/Application Support/sora-device-client`                                                         |
-| Other Unix:           | `~/.config/sora-device-client` or `$XDG_CONFIG_HOME/sora-device-client`, if defined                |
-| Win XP (not roaming): | `C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client`                |
-| Win XP (roaming):     | `C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client` |
-| Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`                                    |
-| Win 7  (roaming):     | `C:\Users\<username>\AppData\Roaming\SwiftNav\sora-device-client`                                  |
+Copy the default config file to the appropriate location. `sora` will tell you where it should go:
 
-For example, if you are on macOS:
-```bash
-mkdir -p ~/Library/Application\ Support/sora-device-client
+```sh
+sora paths
+# Example output:
+# Configuration folder: (your config.toml needs to go in here)
+#     /home/jwhitaker/.config/sora-device-client
+#
+# Data folder: (other runtime data gets stored in here)
+#     /home/jwhitaker/.local/share/sora-device-client
 ```
 
-```bash
-cp sora_device_client/config_example.toml ~/Library/Application\ Support/sora-device-client/config.toml
+`sora` will also give you an example configuration:
+```sh
+sora example-config
+# ==============================================================================
+# Sora Device Client configuration
+# ==============================================================================
+#
+# ...
+# 
 ```
-Source: https://github.com/ActiveState/appdirs/blob/7af32e0b1fe57070ae8b5a717cdaebc094449518/appdirs.py#L187-L190
+
+Putting them together, you can set up a config file in the right location, and edit it:
+
+```sh
+mkdir -p /home/jwhitaker/.config/sora-device-client/ # (configuration folder from `sora paths`)
+sora example-config > /home/jwhitaker/.config/sora-device-client/config.toml 
+notepad /home/jwhitaker/.config/sora-device-client/config.toml # or whatever
+```
 
 You will most likely have to edit the `[location.driver]` section to work with the location source for your system.
 
@@ -124,11 +147,9 @@ stat -c "%G" /dev/ttyACM0
 See [here](https://wiki.archlinux.org/title/users_and_groups#Other_examples_of_user_management) for how to add a user to a group on Linux. You may need to log out of and log in to the operating system session again. On macOS and Windows, the instructions are too varied to list here. Please research how to do this for your combination of OS and OS version.
 
 ## Running
-To run the command-line client, launch a shell from poetry:
-```bash
-poetry shell
+
 ```
-In the new shell, the `sora` command will be in the path:
+Once installed, the `sora` command will be in the path:
 ```bash
 sora --help
 ```
@@ -154,15 +175,8 @@ sora logout
 
 ## Data file
 There is also a data file called `data.toml` that is used to store data that is generated by `sora login`. Typically, running `sora logout` will clear this file.
-If you need to manually remove it, its location typically is:
+If you need to manually remove it, its location is is the `Data path` location from the output of
 
-| OS                    | Path                                                                                               |
-|-----------------------|----------------------------------------------------------------------------------------------------|
-| MacOS:                | `~/Library/Application Support/sora-device-client`                                                 |
-| Other Unix:           | `~/.local/share/sora-device-client` or `$XDG_DATA_HOME/sora-device-client`, if defined             |
-| Win XP (not roaming): | `C:\Documents and Settings\<username>\Application Data\SwiftNav\sora-device-client`                |
-| Win XP (roaming):     | `C:\Documents and Settings\<username>\Local Settings\Application Data\SwiftNav\sora-device-client` |
-| Win 7  (not roaming): | `C:\Users\<username>\AppData\Local\SwiftNav\sora-device-client`                                    |
-| Win 7  (roaming):     | `C:\Users\<username>\AppData\Roaming\SwiftNav\sora-device-client`                                  |
-
-Source: https://github.com/ActiveState/appdirs/blob/7af32e0b1fe57070ae8b5a717cdaebc094449518/appdirs.py#L66-L72
+```sh
+sora paths
+```

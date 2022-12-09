@@ -7,10 +7,16 @@ build: sora .venv
 shell: build
 	poetry shell
 
-sora: buf.gen.yaml .api-version
-	buf generate buf.build/swift-nav/sora-api:$(SORA_API_REF)
+sora: buf.gen.yaml .api-version .venv/bin/protoc-gen-mypy
+	poetry run buf generate buf.build/swift-nav/sora-api:$(SORA_API_REF)
+	touch sora
 
-.venv: sora pyproject.toml poetry.toml poetry.lock
+.venv/bin/protoc-gen-mypy:
+	poetry install --only=codegen --no-root
+
+.PHONY: .venv
+.venv: .venv/lib/python3.10/site-packages/sora_device_client.pth
+.venv/lib/python3.10/site-packages/sora_device_client.pth: sora pyproject.toml poetry.toml poetry.lock
 	poetry lock --check
 	poetry install
 
@@ -18,5 +24,10 @@ sora: buf.gen.yaml .api-version
 clean:
 	git clean -ffidx -e Session.vim
 
-lint:
+lint: .venv
 	poetry run black --check .
+	poetry run mypy
+
+.PHONY: wheel
+wheel: sora
+	poetry build -f wheel

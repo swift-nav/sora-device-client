@@ -8,8 +8,10 @@ from appdirs import AppDirs
 from ..exceptions import DataFileNotFound
 
 dirs = AppDirs("sora-device-client", "SwiftNav")
-CONFIG_FILE_PATH = pathlib.Path(dirs.user_config_dir).joinpath("config.toml")
-DATA_FILE_PATH = pathlib.Path(dirs.user_data_dir).joinpath("data.toml")
+CONFIG_DIR = pathlib.Path(dirs.user_config_dir)
+DATA_DIR = pathlib.Path(dirs.user_data_dir)
+CONFIG_FILE_PATH = CONFIG_DIR.joinpath("config.toml")
+DATA_FILE_PATH = DATA_DIR.joinpath("data.toml")
 
 
 def read_config() -> tomlkit.TOMLDocument:
@@ -27,11 +29,11 @@ def read_data() -> tomlkit.TOMLDocument:
         )
 
 
-def delete_data_file():
+def delete_data_file() -> None:
     DATA_FILE_PATH.unlink(missing_ok=True)
 
 
-def write_data(data: tomlkit.TOMLDocument):
+def write_data(data: tomlkit.TOMLDocument) -> None:
     DATA_FILE_PATH.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     with os.fdopen(
         os.open(DATA_FILE_PATH, os.O_CREAT | os.O_RDWR | os.O_TRUNC, 0o600),

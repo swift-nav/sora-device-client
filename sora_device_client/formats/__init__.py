@@ -1,6 +1,9 @@
 import logging
 
+from typing import *
+from abc import ABCMeta
 from ..exceptions import ConfigValueError
+from ..location import Location
 
 log = logging.getLogger(__name__)
 
@@ -9,7 +12,18 @@ class FormatConfigValueError(Exception):
     pass
 
 
-def sbp_format_from_config(config, driver):
+if TYPE_CHECKING:
+    from . import sbp as sbp_format
+    from sbp.client.drivers.base_driver import BaseDriver
+
+F = TypeVar("F")  # https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
+
+
+class Format(ContextManager[F], Iterable[Location], metaclass=ABCMeta):
+    pass
+
+
+def sbp_format_from_config(config: Any, driver: "BaseDriver") -> "sbp_format.SBPFormat":
     from .sbp import SBPFormat
 
     return SBPFormat(driver)
@@ -20,7 +34,7 @@ FORMATS = {
 }
 
 
-def format_from_config(config, driver):
+def format_from_config(config: Any, driver: "BaseDriver") -> Format[Any]:
     formats_cfg = config["format"]
     if len(formats_cfg) != 1:
         raise ConfigValueError("Exactly one format should be specified")

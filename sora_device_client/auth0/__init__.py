@@ -1,10 +1,10 @@
 import requests
 import time
 
+from typing import *
 from dataclasses import dataclass
 from http import HTTPStatus
 from rich import print
-from typing import TypedDict
 
 from sora_device_client.auth0.info import Auth0AuthServerInfo
 from sora_device_client.config.device import DeviceConfig, extract_claims
@@ -19,7 +19,7 @@ class DeviceCodeResponse(TypedDict):
     user_code: str
 
 
-class OauthTokenReponse(TypedDict):
+class OauthTokenResponse(TypedDict):
     access_token: str
 
 
@@ -42,11 +42,11 @@ class Auth0Client:
         if r.status_code != HTTPStatus.OK:
             raise Exception(f"Failed to get device code: {r.status_code}")
 
-        return r.json()
+        return cast(DeviceCodeResponse, r.json())
 
     def _poll_for_tokens(
         self, device_code: str, interval: int, expires_in: int
-    ) -> OauthTokenReponse:
+    ) -> OauthTokenResponse:
         time_estimate = 0
         delay = interval
         payload = {
@@ -74,7 +74,7 @@ class Auth0Client:
                 time.sleep(delay)
                 continue
 
-            return r.json()
+            return cast(OauthTokenResponse, r.json())
 
         raise Exception("Took too long to authenticate in the browser")
 

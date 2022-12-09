@@ -5,7 +5,9 @@ import threading
 import time
 import persistqueue
 
-from collections.abc import Generator
+from typing import *
+from numbers import Number
+from abc import ABC
 from contextlib import contextmanager
 from dataclasses import dataclass
 from google.protobuf.struct_pb2 import Struct
@@ -20,6 +22,7 @@ import sora.device.v1beta.service_pb2 as device_pb2
 
 from sora_device_client.config.device import DeviceConfig
 from sora_device_client.config.server import ServerConfig
+from sora_device_client.config import DATA_DIR
 
 
 class ExitMain(Exception):
@@ -42,7 +45,7 @@ def _device_service_channel(cfg: ServerConfig) -> grpc.Channel:
         creds = grpc.ssl_channel_credentials()
         chan = grpc.secure_channel(cfg.target(), creds, server_opts)
 
-    def chan_health_listener(state):
+    def chan_health_listener(state: grpc.ChannelConnectivity) -> None:
         if state in {
             grpc.ChannelConnectivity.TRANSIENT_FAILURE,
             grpc.ChannelConnectivity.SHUTDOWN,
@@ -66,6 +69,13 @@ def device_service_channel(cfg: ServerConfig) -> Generator[grpc.Channel, None, N
         chan.close()
 
 
+T = TypeVar("T")
+
+
+class SizedIterable(ABC, Generic[T], Iterable[T], Sized):
+    pass
+
+
 @dataclass
 class SoraDeviceClient:
     device_config: DeviceConfig
@@ -74,17 +84,17 @@ class SoraDeviceClient:
     event_queue_depth: int = 0
     logger: Logger = getLogger(__name__)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """
         SORA-412: To save device_client data on to disk instead of in-memory.
         When there is any issue connecting to server, the data on disk can be retrieved later
         when the connectivity is restored and sent to server.
         """
         self._state_queue = SQLiteAckQueue(
-            "../state", multithreading=True, auto_commit=True
+            DATA_DIR.joinpath("states"), multithreading=True, auto_commit=True
         )
         self._event_queue = SQLiteAckQueue(
-            "../event", multithreading=True, auto_commit=True
+            DATA_DIR.joinpath("events"), multithreading=True, auto_commit=True
         )
         self.metadata = [("authorization", f"Bearer {self.device_config.access_token}")]
         self._state_worker = threading.Thread(
@@ -98,10 +108,10 @@ class SoraDeviceClient:
             daemon=True,
         )
         self._stop = threading.Event()
-        self._chan = None
-        self._stub = None
+        self._chan: Optional[grpc.Channel] = None
+        self._stub: Optional[device_grpc.DeviceServiceStub] = None
 
-    def connect(self):
+    def connect(self) -> None:
         target = self.server_config.target()
         self.logger.info(f"Connecting to Sora server @ {target}")
 
@@ -118,8 +128,8 @@ class SoraDeviceClient:
             self.logger.info("Disconnected")
             raise
 
-    def start(self):
-        def signal_handler(signal, frame):
+    def start(self) -> None:
+        def signal_handler(signal: int, frame: Any) -> None:
             """
             Ignore the signal and frame and just exit the process.
             It is expected that the process will be restarted by a external orchestration system.
@@ -133,7 +143,7 @@ class SoraDeviceClient:
         print(f"Sending state as device {self.device_config.device_name} to project.")
         # TODO: print urls of all projects the device is sending state to
 
-    def stop(self, timeout: int):
+    def stop(self, timeout: int) -> None:
         try:
             self._stop.set()
             zero = time.monotonic()
@@ -168,7 +178,11 @@ class SoraDeviceClient:
     """
 
     @contextmanager
-    def iter_ack_queue(self, que: SQLiteAckQueue, max_pending_acks=math.inf):
+    def iter_ack_queue(
+        self,
+        que: SQLiteAckQueue,
+        max_pending_acks: Union[int, float] = math.inf,
+    ) -> Generator[SizedIterable[Any], None, None]:
         """
         This is used to iterate through items in an queue.
         It is to be used as a `with` statement: if the contents of the `with` block
@@ -198,9 +212,9 @@ class SoraDeviceClient:
         # Clear any acked data from disk, we don't need it anymore.
         que.clear_acked_data(keep_latest=500)
 
-        yielded = []
+        yielded: List[int] = []
 
-        def iterator():
+        def iterator() -> Iterator[Any]:
             while len(yielded) < max_pending_acks and not self._stop.is_set():
                 try:
                     entry = que.get(raw=True, timeout=1)
@@ -209,6 +223,7 @@ class SoraDeviceClient:
                     # it's hard to stop cleanly because we can't wait for
                     # self._stop.
                     continue
+                id: int
                 id, x = entry["pqid"], entry["data"]
                 yielded.append(id)
                 # if there is an error in stream, this yield will never complete.
@@ -217,15 +232,20 @@ class SoraDeviceClient:
         # this might be overcomplicating things.. I want the consumer to be able
         # to call len(items) to get how many things got acked, just for logging
         # purposes.
-        class WithLen:
-            def __init__(self, it):
-                self.it = it
-                self.acked = None
 
-            def __len__(self):
+        class WithLen(SizedIterable[T]):
+            def __init__(self, it: Iterable[T]):
+                self.it = it
+                self.acked: Optional[int] = None
+
+            def __len__(self) -> int:
+                if self.acked is None:
+                    raise Exception(
+                        "tried to read len(iter_ack_queue) before your with: block was finished!"
+                    )
                 return self.acked
 
-            def __iter__(self):
+            def __iter__(self) -> Generator[T, None, None]:
                 yield from self.it
 
         it = WithLen(iterator())
@@ -238,13 +258,14 @@ class SoraDeviceClient:
             self.logger.debug(f"Acknowledged queue itemId: {id}")
         it.acked = len(yielded)
 
-    def _state_stream_sender(self, que: SQLiteAckQueue):
+    def _state_stream_sender(self, que: SQLiteAckQueue) -> None:
+        assert self._stub is not None
         while not self._stop.is_set():
             self.logger.debug("opening StreamDeviceState")
             try:
                 with self.iter_ack_queue(que, max_pending_acks=50) as items:
 
-                    def log_items():
+                    def log_items() -> Generator[Any, None, None]:
                         for x in items:
                             self.logger.info(
                                 "Sending state for device %s:",
@@ -282,7 +303,8 @@ class SoraDeviceClient:
             )
             time.sleep(5)
 
-    def _event_stream_sender(self, que: SQLiteAckQueue):
+    def _event_stream_sender(self, que: SQLiteAckQueue) -> None:
+        assert self._stub is not None
         while not self._stop.is_set():
             # a naive person might think we could ack immediately after AddEvent finishes without error,
             # but then that person wouldn't have spent four hours of horror reading through the grpc github
@@ -320,7 +342,13 @@ class SoraDeviceClient:
             )
             time.sleep(5)
 
-    def add_event(self, event_type, payload=None, lat=None, lon=None):
+    def add_event(
+        self,
+        event_type: str,
+        payload: Optional[Dict[str, Any]] = None,
+        lat: Optional[float] = None,
+        lon: Optional[float] = None,
+    ) -> None:
         payload = payload or {}
         timestamp = Timestamp()
         payload_pb = Struct()
@@ -329,7 +357,7 @@ class SoraDeviceClient:
         event = common_pb.Event(
             device_id=str(self.device_config.device_id),
             time=timestamp,
-            pos=common_pb.Position(lat=lat, lon=lon),
+            pos=common_pb.Position(lat=lat or 0, lon=lon or 0),
             type=event_type,
             payload=payload_pb,
         )
@@ -337,7 +365,13 @@ class SoraDeviceClient:
         self.logger.debug(event)
         self._event_queue.put(device_pb2.StreamEventRequest(event=event))
 
-    def send_state(self, state=None, lat=None, lon=None):
+    def send_state(
+        self,
+        state: Optional[Dict[str, Any]] = None,
+        lat: Optional[float] = None,
+        lon: Optional[float] = None,
+    ) -> None:
+        state = state or {}
         timestamp = Timestamp()
         state_pb = Struct()
         state_pb.update(state or {})
@@ -351,7 +385,7 @@ class SoraDeviceClient:
                 yaw=(180 - state["bearing"] if "bearing" in state else 180),
                 roll=90,
             ),
-            pos=common_pb.Position(lat=lat, lon=lon),
+            pos=common_pb.Position(lat=lat or 0, lon=lon or 0),
             user_data=state_pb,
         )
         self.logger.debug("Queuing state for device %s:", self.device_config.device_id)

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import *
 
 
 @dataclass
@@ -20,4 +20,4 @@ class Orientation:
 class Location:
     position: Position
     orientation: Optional[Orientation]
-    status: dict
+    status: Dict[str, Any]
