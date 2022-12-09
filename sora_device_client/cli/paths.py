@@ -13,3 +13,15 @@ def paths() -> None:
     eprint("Data folder: (other runtime data gets stored in here)")
     eprint(f"    {DATA_DIR}")
     eprint()
+
+
+def example_config() -> None:
+    import sora_device_client
+    import importlib.resources
+
+    example_config = (
+        importlib.resources.files(sora_device_client)
+        .joinpath("config_example.toml")
+        .read_text()
+    )
+    print(example_config)
