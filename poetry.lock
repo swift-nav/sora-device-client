@@ -365,7 +365,7 @@ jupyter = ["ipywidgets (>=7.5.1,<8.0.0)"]
 
 [[package]]
 name = "sbp"
-version = "4.9.0"
+version = "4.10.0"
 description = "Python bindings for Swift Binary Protocol"
 category = "main"
 optional = false
@@ -504,7 +504,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "9db272b46f1644a048b5f90db425d3c06a006b15d71df3e085ca31b646e013a7"
+content-hash = "4cfad64246a47cc69891dc97fdefe7c074bcc11d5c0c94bd29239c20155d36fd"
 
 [metadata.files]
 appdirs = [
@@ -735,8 +735,8 @@ rich = [
     {file = "rich-12.6.0.tar.gz", hash = "sha256:ba3a3775974105c221d31141f2c116f4fd65c5ceb0698657a11e9f295ec93fd0"},
 ]
 sbp = [
-    {file = "sbp-4.9.0-py2.py3-none-any.whl", hash = "sha256:1816606bce04bdf184918ec749d442292c0467112f4ba66eea0f10cb08d5656e"},
-    {file = "sbp-4.9.0.tar.gz", hash = "sha256:66b3b58465344ea3bf7865cd8f83ddb4a191bdca054304af3c8880e99fbcf377"},
+    {file = "sbp-4.10.0-py2.py3-none-any.whl", hash = "sha256:8d58d7ff593f0e213429a61e59acf45f1bdc43c5878e2e9aacec43c2781b1ce0"},
+    {file = "sbp-4.10.0.tar.gz", hash = "sha256:de9a04071ea0fe0a0ed9fd861d968012eb020354ec44a53e6b9add7e78bc9363"},
 ]
 setuptools = [
     {file = "setuptools-65.6.3-py3-none-any.whl", hash = "sha256:57f6f22bde4e042978bcd50176fdb381d7c21a9efa4041202288d3737a0c6a54"},
