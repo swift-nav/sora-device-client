@@ -7,6 +7,7 @@ readme = "README.md"
 packages = [{ include = "sora" }, { include = "sora_device_client" }]
 # poetry excludes stuff in .gitignore, so we need to make sure it gets picked up
 include = ["sora/**/*.py"]
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
