@@ -1,8 +1,6 @@
 from urllib.parse import urlparse
 
-# TODO(triarius): replace with a production url when there is a production
-# environment.
-DEFAULT_SERVER_URL = "https://grpc.staging.sora.swiftnav.com"
+DEFAULT_SERVER_URL = "https://grpc.sora.swiftnav.com"
 DEFAULT_PORT = 443
 
 
