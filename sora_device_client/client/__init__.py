@@ -168,7 +168,7 @@ class SoraDeviceClient:
                     events,
                 )
 
-    """ 
+    """
     SQLiteAckQueue status
         inited = '0'
         ready = '1'
