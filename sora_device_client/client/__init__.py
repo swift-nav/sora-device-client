@@ -168,7 +168,7 @@ class SoraDeviceClient:
                     events,
                 )
 
-    """ 
+    """
     SQLiteAckQueue status
         inited = '0'
         ready = '1'
@@ -380,11 +380,7 @@ class SoraDeviceClient:
             # Note: this will be replaced the by the device_id claimed the JWT
             device_id=str(self.device_config.device_id),
             time=timestamp,
-            orientation=common_pb.Orientation(
-                pitch=0,
-                yaw=(180 - state["bearing"] if "bearing" in state else 180),
-                roll=90,
-            ),
+            orientation=None,
             pos=common_pb.Position(lat=lat or 0, lon=lon or 0),
             user_data=state_pb,
         )

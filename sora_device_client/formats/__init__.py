@@ -16,10 +16,8 @@ if TYPE_CHECKING:
     from . import sbp as sbp_format
     from sbp.client.drivers.base_driver import BaseDriver
 
-F = TypeVar("F")  # https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
 
-
-class Format(ContextManager[F], Iterable[Location], metaclass=ABCMeta):
+class Format(ContextManager[Iterable[Location]], metaclass=ABCMeta):
     pass
 
 
@@ -34,7 +32,7 @@ FORMATS = {
 }
 
 
-def format_from_config(config: Any, driver: "BaseDriver") -> Format[Any]:
+def format_from_config(config: Any, driver: "BaseDriver") -> Format:
     formats_cfg = config["format"]
     if len(formats_cfg) != 1:
         raise ConfigValueError("Exactly one format should be specified")
