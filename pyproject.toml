@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sora-device-client"
-version = "0.2.0"
+version = "1.0.0a0"
 description = "A client to stream device location data to a sever for the SORA api"
 authors = ["Swift Navigation <developers@swift-nav.com>"]
 readme = "README.md"
