@@ -2,4 +2,4 @@
 
 # pick sora-api ref from https://buf.build/swift-nav/sora-api/tags/main
 # either a commit or a tag will do
-SORA_API_REF := 26c1264ae85e0e11d5b42c5de8b4bd2dc954abf1
+SORA_API_REF := 38a20ee18d7b45858cfa63e72353faea
