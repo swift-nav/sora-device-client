@@ -48,6 +48,10 @@ brew install python@3.10
 
 `pip install sora-device-client`
 
+## Install a development version.
+
+See DEVELOPMENT.md for info on installing from source / CI build.
+
 # Command-Line Client
 
 ## Configuration file
