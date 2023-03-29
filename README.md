@@ -71,14 +71,14 @@ sora example-config
 # ==============================================================================
 #
 # ...
-# 
+#
 ```
 
 Putting them together, you can set up a config file in the right location, and edit it:
 
 ```sh
 mkdir -p /home/jwhitaker/.config/sora-device-client/ # (configuration folder from `sora paths`)
-sora example-config > /home/jwhitaker/.config/sora-device-client/config.toml 
+sora example-config > /home/jwhitaker/.config/sora-device-client/config.toml
 notepad /home/jwhitaker/.config/sora-device-client/config.toml # or whatever
 ```
 
