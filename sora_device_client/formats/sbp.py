@@ -34,7 +34,7 @@ def pos_llh_to_position(msg: SBPMsg) -> Tuple[location.Position, Dict[str, Any]]
     return (pos, meta)
 
 
-class SBPFormat(Format["SBPFormat"]):
+class SBPFormat(Format):
     def __init__(self, driver: BaseDriver):
         self._sbp_handler = Handler(Framer(driver.read, None, verbose=True))
         self._msg_set = {SBP_MSG_POS_LLH: None, SBP_MSG_GPS_TIME: None}
