@@ -18,6 +18,10 @@ jobs:
         python-version: '3.9'
         cache: 'poetry'
     - uses: bufbuild/buf-setup-action@v1
+      env:
+        BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
+      with:
+        github_token: ${{ github.token }}
 
     - run: make lint
 
@@ -35,6 +39,10 @@ jobs:
         python-version: '${{ matrix.python_version }}'
         cache: 'poetry'
     - uses: bufbuild/buf-setup-action@v1
+      env:
+        BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
+      with:
+        github_token: ${{ github.token }}
 
     - run: make sora
     - run: pip install .
@@ -78,6 +86,10 @@ jobs:
         python-version: '3.9'
         cache: 'poetry'
     - uses: bufbuild/buf-setup-action@v1
+      env:
+        BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
+      with:
+        github_token: ${{ github.token }}
 
     - run: |
         poetry version $(poetry version -s)+$(git branch --show-current | tr -d '+~/ ')-$(git rev-parse --short HEAD)
