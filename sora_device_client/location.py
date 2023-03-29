@@ -11,9 +11,9 @@ class Position:
 
 @dataclass
 class Orientation:
+    yaw: float
     pitch: float
     roll: float
-    yaw: float
 
 
 @dataclass
