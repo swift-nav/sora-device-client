@@ -44,50 +44,9 @@ On macOS, you can use homebrew as well:
 brew install python@3.10
 ```
 
-## Option 1) Install with `pip` from PyPI.
+## Install with `pip` from PyPI.
 
-~~NOT YET FINALIZED~~
-
-## Option 2) Install with `pip` from Github artifact.
-
-Wheels are built with Github Actions. You can get the latest run by going to
-
-https://github.com/swift-nav/sora-device-client/actions/workflows/fmt.yaml?query=branch%3Amain
-
-, clicking the **first item** there, going to **Artifacts**, and downloading **sora.whl**.
-
-If you unzip `sora.whl.zip`, you'll see a single `.whl` file. Install it with `pip`:
-
-```sh
-unzip sora.whl.zip
-pip install sora_device_client-*-py3-none-any.whl
-```
-
-## Option 3) Install from this checked-out repo.
-
-This requires the `buf` tool. Full installation instructions and options are
-[here](https://docs.buf.build/installation), or simply on Mac/Linux with Brew with
-```bash
-brew install bufbuild/buf/buf
-```
-
-Once `buf` is installed,
-
-```sh
-# check out this repo,
-git clone github.com/sora/sora-device-client
-cd sora-device-client
-
-# generate code,
-make sora
-
-# install,
-pip install .
-
-# and check it works.
-sora --version
-```
-
+`pip install sora-device-client`
 
 # Command-Line Client
 
