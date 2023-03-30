@@ -1,5 +1,8 @@
 include .api-version
 
+.ONESHELL:
+.SHELLFLAGS=-e -c
+
 .PHONY: build
 build: sora .venv
 
@@ -27,6 +30,19 @@ clean:
 lint: .venv
 	poetry run black --check .
 	poetry run mypy
+	find sora_device_client -name '*.py' \
+		| xargs grep -P --files-without-match '(?s)^# Copyright' \
+		| (
+			set +x
+			FILES=$$(cat)
+			if [ "$${FILES}" != "" ]; then
+				echo "Files without copyright notice found!" 1>&2
+				echo "$${FILES}" 1>&2
+				exit 1
+			else
+				echo "All files include copyright notice!" 1>&2
+			fi
+		)
 
 .PHONY: wheel
 wheel: sora
