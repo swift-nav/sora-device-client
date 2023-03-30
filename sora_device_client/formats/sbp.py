@@ -1,3 +1,9 @@
+# Copyright (C) 2022 Swift Navigation Inc.
+# Contact: Swift Navigation <dev@swiftnav.com>
+
+# This source is subject to the license found in the file 'LICENCE' which must
+# be be distributed together with this source. All other rights reserved.
+
 from typing import *
 from sbp.client import Handler, Framer
 from sbp.navigation import SBP_MSG_POS_LLH, SBP_MSG_GPS_TIME
