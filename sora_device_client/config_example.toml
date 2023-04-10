@@ -15,7 +15,7 @@ decimate = 10
 # # TCP socket driver
 # [location.driver.tcp]
 # host = "localhost"
-# port = 55555
+# port = 55556
 
 # Serial port driver
 [location.driver.serial]
@@ -70,7 +70,7 @@ orientation = false
 # decimate = 10
 # [location.driver.tcp]
 # host = "192.168.0.222"
-# port = 55555
+# port = 55556
 # [location.format.sbp]
 # orientation = false
 
@@ -79,7 +79,7 @@ orientation = false
 # decimate = 10
 # [location.driver.tcp]
 # host = "192.168.0.222"
-# port = 55555
+# port = 55556
 # [location.format.sbp]
 # orientation = true
 
