@@ -1,6 +1,15 @@
 Sora Device Client
 =================
 
+The Sora Device Client provides a set of simple tools to connect your GNSS device to [Sora](https://support.swiftnav.com/support/solutions/articles/44002416509-introduction-to-sora).
+
+The Sora Device Client consists of:
+
+ - A command-line client - the simplest way to connect to Sora
+ - A Python client library - for deeper integration and customization
+
+# Table of Contents
+
 <!-- vim-markdown-toc GFM -->
 
 * [Installing](#installing)
@@ -16,15 +25,10 @@ Sora Device Client
     * [Start](#start)
     * [Logout](#logout)
   * [Data file](#data-file)
+* [GNSS Receiver Configuration](#gnss-receiver-configuration)
+* [Technical Support](#technical-support)
 
 <!-- vim-markdown-toc -->
-
-The Sora Device Client provides a set of simple tools to connect your device to Sora.
-
-The Sora Device Client consists of:
-
- - A command-line client - the simplest way to connect to Sora
- - A Python client library - for deeper integration and customization
 
 # Installing
 
@@ -143,3 +147,52 @@ If you need to manually remove it, its location is is the `Data path` location f
 ```sh
 sora paths
 ```
+
+# GNSS Receiver Configuration
+
+The Sora Device Client works with Swift Navigation receivers and Starling Position Engine software using data in SBP protocol. Refer to the receiver-specific manual to configure your receiver:
+
+- [Piksi Multi](https://support.swiftnav.com/support/solutions/folders/44001200455)
+- [Duro](https://support.swiftnav.com/support/solutions/folders/44001200456)
+- [PGM EVK](https://support.swiftnav.com/support/solutions/articles/44002129828-pgm-evaluation-kit)
+- [Starling Positioning Engine](https://support.swiftnav.com/support/solutions/folders/44001223202)
+
+The device client uses the following SBP messages:
+
+| Message Name | Message ID (decimal) | Description |
+| :--- | :---: | :--- |
+| `POS LLH` | 522 | Position (latitude, longitude, altitude) |
+| `ORIENT EULER` | 545 | Orientation (roll, pitch, yaw)<br>*Note: message is available only in products with inertial fusion enabled* |
+
+Download [Swift Binary Protocol Specification](https://support.swiftnav.com/support/solutions/articles/44001850782-swift-binary-protocol)
+
+
+### Piksi Multi / Duro Configuration Example
+
+Piksi Multi and Duro configuration can be changed using Swift Console program. `TCP Server 1` settings example:
+
+![Piksi Multi Configuration Example](docs/images/piksi-multi-configuration.png)
+
+*Note: Click SAVE TO DEVICE button to memorize settings over the power cycle.*
+
+
+### Starling Configuration Example
+  
+Starling configuration is saved in the yaml configuration file. `TCP server` output example:
+  ```
+  ...
+    outputs:
+      - name: sbp-sora
+        protocol: sbp
+        type: tcp-server
+        port: 55556
+        max-conns: 4
+        sbp:
+          enabled-messages: [ 522,545 ]
+  ...
+  ```
+
+
+# Technical Support
+
+Support requests can be made by filling the Support Request Form on the [Swift Navigation Support page](https://support.swiftnav.com/) (Support Request Form button is at the bottom of the page). A simple login is required to confirm your email address.
