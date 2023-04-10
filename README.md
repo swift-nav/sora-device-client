@@ -162,16 +162,16 @@ The device client uses the following SBP messages:
 | Message Name | Message ID (decimal) | Description |
 | :--- | :---: | :--- |
 | `POS LLH` | 522 | Position (latitude, longitude, altitude) |
-| `ORIENT EULER` | 545 | Orientation (roll, pitch, yaw)<br>*Note: message is available only in products with inertial fusion enabled* |
+| `ORIENT EULER` | 545 | Orientation (roll, pitch, yaw)<br>*Note 1: using this message is optional*<br>*Note 2: message is available only in products with inertial fusion enabled* |
 
 Download [Swift Binary Protocol Specification](https://support.swiftnav.com/support/solutions/articles/44001850782-swift-binary-protocol)
 
 
 ### Piksi Multi / Duro Configuration Example
 
-Piksi Multi and Duro configuration can be changed using Swift Console program. `TCP Server 1` settings example:
+Piksi Multi and Duro configuration can be changed using [Swift Console](https://support.swiftnav.com/support/solutions/articles/44001391679-swift-console) program. `TCP Server 1` settings example:
 
-![Piksi Multi Configuration Example](docs/images/piksi-multi-configuration.png)
+![Piksi Multi Configuration Example](docs/piksi-multi-configuration.png)
 
 *Note: Click SAVE TO DEVICE button to memorize settings over the power cycle.*
 
