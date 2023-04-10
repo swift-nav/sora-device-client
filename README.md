@@ -1,7 +1,7 @@
 Sora Device Client
 =================
 
-The Sora Device Client provides a set of simple tools to connect your GNSS device to [Sora](https://support.swiftnav.com/support/solutions/articles/44002416509-introduction-to-sora).
+The Sora Device Client provides a set of tools to connect your GNSS device to [Sora](https://support.swiftnav.com/support/solutions/articles/44002416509-introduction-to-sora).
 
 The Sora Device Client consists of:
 
@@ -162,7 +162,7 @@ The device client uses the following SBP messages:
 | Message Name | Message ID (decimal) | Description |
 | :--- | :---: | :--- |
 | `POS LLH` | 522 | Position (latitude, longitude, altitude) |
-| `ORIENT EULER` | 545 | Orientation (roll, pitch, yaw)<br>*Note 1: using this message is optional*<br>*Note 2: message is available only in products with inertial fusion enabled* |
+| `ORIENT EULER` | 545 | Orientation (roll, pitch, yaw)<br>*Using this message is optional*<br>*Message is available only in products with inertial fusion enabled* |
 
 Download [Swift Binary Protocol Specification](https://support.swiftnav.com/support/solutions/articles/44001850782-swift-binary-protocol)
 
