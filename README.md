@@ -38,7 +38,7 @@ You will most likely need a package manager to install the other dependencies. U
 For macOS, it is recommend to use [homebrew](https://brew.sh/). For windows, something like [chocolately](https://chocolatey.org/) will do.
 
 ### Python Interpreter
-You need to install python 3.10. See <https://www.python.org/downloads/> for download instructions.
+You need to install Python. Versions 3.8 - 3.11 are supported. See <https://www.python.org/downloads/> for download instructions.
 On macOS, you can use homebrew as well:
 ```bash
 brew install python@3.10
