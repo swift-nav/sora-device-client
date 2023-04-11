@@ -12,7 +12,7 @@ from typing import *
 class Position:
     lat: float
     lon: float
-    height: float
+    height: Optional[float]
 
 
 @dataclass

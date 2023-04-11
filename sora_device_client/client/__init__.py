@@ -29,6 +29,7 @@ import sora.device.v1beta.service_pb2 as device_pb2
 from sora_device_client.config.device import DeviceConfig
 from sora_device_client.config.server import ServerConfig
 from sora_device_client.config import DATA_DIR
+from sora_device_client.location import Position
 
 
 class ExitMain(Exception):
@@ -351,9 +352,8 @@ class SoraDeviceClient:
     def add_event(
         self,
         event_type: str,
+        pos: Position,
         payload: Optional[Dict[str, Any]] = None,
-        lat: Optional[float] = None,
-        lon: Optional[float] = None,
     ) -> None:
         payload = payload or {}
         timestamp = Timestamp()
@@ -363,7 +363,7 @@ class SoraDeviceClient:
         event = common_pb.Event(
             device_id=str(self.device_config.device_id),
             time=timestamp,
-            pos=common_pb.Position(lat=lat or 0, lon=lon or 0),
+            pos=_pos_to_pb(pos),
             type=event_type,
             payload=payload_pb,
         )
@@ -373,9 +373,8 @@ class SoraDeviceClient:
 
     def send_state(
         self,
+        pos: Position,
         state: Optional[Dict[str, Any]] = None,
-        lat: Optional[float] = None,
-        lon: Optional[float] = None,
     ) -> None:
         state = state or {}
         timestamp = Timestamp()
@@ -387,9 +386,13 @@ class SoraDeviceClient:
             device_id=str(self.device_config.device_id),
             time=timestamp,
             orientation=None,
-            pos=common_pb.Position(lat=lat or 0, lon=lon or 0),
+            pos=_pos_to_pb(pos),
             user_data=state_pb,
         )
         self.logger.debug("Queuing state for device %s:", self.device_config.device_id)
         self.logger.debug(device_state)
         self._state_queue.put(device_pb2.StreamDeviceStateRequest(state=device_state))
+
+
+def _pos_to_pb(pos: Position) -> common_pb.Position:
+    return common_pb.Position(lat=pos.lat, lon=pos.lon, alt=pos.height)
