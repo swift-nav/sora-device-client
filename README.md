@@ -150,7 +150,7 @@ sora paths
 
 # GNSS Receiver Configuration
 
-The Sora Device Client works with Swift Navigation receivers and Starling Position Engine software using data in SBP protocol. Refer to the receiver-specific manual to configure your receiver:
+The Sora Device Client currently works with Swift Navigation receivers and Starling Positioning Engine software, using the SBP protocol. Refer to the receiver-specific manual to configure your receiver:
 
 - [Piksi Multi](https://support.swiftnav.com/support/solutions/folders/44001200455)
 - [Duro](https://support.swiftnav.com/support/solutions/folders/44001200456)
@@ -161,10 +161,11 @@ The device client uses the following SBP messages:
 
 | Message Name | Message ID (decimal) | Description |
 | :--- | :---: | :--- |
+| `GPS TIME` | 258 | GPS time |
 | `POS LLH` | 522 | Position (latitude, longitude, altitude) |
 | `ORIENT EULER` | 545 | Orientation (roll, pitch, yaw)<br>*Using this message is optional*<br>*Message is available only in products with inertial fusion enabled* |
 
-Download [Swift Binary Protocol Specification](https://support.swiftnav.com/support/solutions/articles/44001850782-swift-binary-protocol)
+Download [Swift Binary Protocol Specification](https://www.swiftnav.com/resource-library?title=Swift+Navigation+Binary+Protocol+Specifications&product=Swift+Navigation+Binary+Protocol&category=Specification&release=Latest)
 
 
 ### Piksi Multi / Duro Configuration Example
@@ -177,8 +178,8 @@ Piksi Multi and Duro configuration can be changed using [Swift Console](https://
 
 
 ### Starling Configuration Example
-  
-Starling configuration is saved in the yaml configuration file. `TCP server` output example:
+
+Starling configuration is saved in Starling's YAML configuration file. `TCP server` output example:
   ```
   ...
     outputs:
@@ -188,7 +189,7 @@ Starling configuration is saved in the yaml configuration file. `TCP server` out
         port: 55556
         max-conns: 4
         sbp:
-          enabled-messages: [ 522,545 ]
+          enabled-messages: [ 258,522,545 ]
   ...
   ```
 
