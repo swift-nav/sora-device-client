@@ -56,7 +56,11 @@ def start() -> None:
                         if fix_mode is None or fix_mode == "Invalid":
                             logger.warn("fix_mode is %s, not sending state.", fix_mode)
                             continue
-                        client.send_state(pos=loc.position, state=loc.status)
+                        client.send_state(
+                            pos=loc.position,
+                            ori=loc.orientation,
+                            state=loc.status,
+                        )
                 except KeyboardInterrupt:
                     logger.info("Terminating state stream..")
                     client.stop(timeout=5)

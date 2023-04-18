@@ -113,6 +113,12 @@ stat -c "%G" /dev/ttyACM0
 ```
 See [here](https://wiki.archlinux.org/title/users_and_groups#Other_examples_of_user_management) for how to add a user to a group on Linux. You may need to log out of and log in to the operating system session again. On macOS and Windows, the instructions are too varied to list here. Please research how to do this for your combination of OS and OS version.
 
+The Sora Device Client, by default, does not transmit device orientation data. However, if this flag is enabled, the client will only send the device state after receiving the `ORIENT EULER` message. It is important to note that this message is exclusively available in products with inertial fusion enabled. As such, please only enable this feature if it is required for your specific use case.
+```toml
+[location.format.sbp]
+orientation = false
+```
+
 ## Running
 
 ```

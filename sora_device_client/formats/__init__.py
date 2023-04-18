@@ -30,7 +30,7 @@ class Format(ContextManager[Iterable[Location]], metaclass=ABCMeta):
 def sbp_format_from_config(config: Any, driver: "BaseDriver") -> "sbp_format.SBPFormat":
     from .sbp import SBPFormat
 
-    return SBPFormat(driver)
+    return SBPFormat(driver, config)
 
 
 FORMATS = {
