@@ -29,7 +29,7 @@ import sora.device.v1beta.service_pb2 as device_pb2
 from sora_device_client.config.device import DeviceConfig
 from sora_device_client.config.server import ServerConfig
 from sora_device_client.config import DATA_DIR
-from sora_device_client.location import Position
+from sora_device_client.location import Position, Orientation
 
 
 class ExitMain(Exception):
@@ -374,6 +374,7 @@ class SoraDeviceClient:
     def send_state(
         self,
         pos: Position,
+        ori: Optional[Orientation] = None,
         state: Optional[Dict[str, Any]] = None,
     ) -> None:
         state = state or {}
@@ -385,7 +386,7 @@ class SoraDeviceClient:
             # Note: this will be replaced the by the device_id claimed the JWT
             device_id=str(self.device_config.device_id),
             time=timestamp,
-            orientation=None,
+            orientation=_ori_to_pb(ori),
             pos=_pos_to_pb(pos),
             user_data=state_pb,
         )
@@ -396,3 +397,11 @@ class SoraDeviceClient:
 
 def _pos_to_pb(pos: Position) -> common_pb.Position:
     return common_pb.Position(lat=pos.lat, lon=pos.lon, alt=pos.height)
+
+
+def _ori_to_pb(ori: Optional[Orientation]) -> Optional[common_pb.Orientation]:
+    return (
+        common_pb.Orientation(pitch=ori.pitch, yaw=ori.yaw, roll=ori.roll)
+        if ori
+        else None
+    )
